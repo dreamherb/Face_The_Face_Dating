@@ -15,6 +15,11 @@
       integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
       crossorigin="anonymous"
     />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body>
     <div class="container py-5">
@@ -22,9 +27,13 @@
         <div class="col">
           <nav class="navbar bg-light rounded-3 p-3 mb-4">
             <div class="container-fluid">
-            
               <div class="text-end">
-                <button class="btn btn-secondary" type="submit">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-toggle="modal"
+                  data-bs-target="#exitModal"
+                >
                   <strong>E X I T</strong>
                 </button>
               </div>
@@ -33,75 +42,55 @@
         </div>
       </div>
 
+      <!-- ExitModal -->
+      <div
+        class="modal fade"
+        id="exitModal"
+        tabindex="-1"
+        aria-labelledby="exitModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exitModalLabel">
+                정말 나가시겠습니까?
+              </h1>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                No
+              </button>
+              <button type="button" class="btn btn-primary">Yes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="row">
         <div class="col-lg-4">
           <div class="card mb-4">
-            <div class="card-body text-center">
-              화상채팅 노출 영역
-            </div>
-
+            <div class="card-body text-center">화상채팅 노출 영역</div>
           </div>
           <div class="card mb-4">
-            <div class="card-body text-center">
-              화상채팅 노출 영역2
-            </div>
-            
+            <div class="card-body text-center">화상채팅 노출 영역2</div>
           </div>
         </div>
         <div class="col-lg-8">
           <div class="card mb-4">
             <div class="card-body">
-
               대화창 표시칸
-
-              <!-- <div class="row">
-                <div class="col-sm-3">
-                  <p class="mb-0">Nick Name</p>
-                </div>
-                <div class="col-sm-9">
-                  <p class="text-muted mb-0">닉네임</p>
-                </div>
-              </div>
-              <hr />
-              <div class="row">
-                <div class="col-sm-3">
-                  <p class="mb-0">Gender</p>
-                </div>
-                <div class="col-sm-9">
-                  <select id="inputState" class="form-select text-muted mb-0">
-                    <option selected>Choose...</option>
-                    <option>...</option>
-                  </select>
-                </div>
-              </div>
-              <hr />
-              <div class="row">
-                <div class="col-sm-3">
-                  <p class="mb-0">Born at</p>
-                </div>
-
-                <div class="col-sm-9">
-                  <select id="inputState" class="form-select text-muted mb-0">
-                    <option selected>Choose...</option>
-                    <option>...</option>
-                  </select>
-                </div>
-              </div>
-              <hr />
-              <div class="row">
-                <div class="col-sm-3">
-                  <p class="mb-0">Location</p>
-                </div>
-                <div class="col-sm-9">
-                  <select id="inputState" class="form-select text-muted mb-0">
-                    <option selected>Choose...</option>
-                    <option>...</option>
-                  </select>
-                </div>
-              </div>
-              <hr /> -->
-
-
               <div class="row">
                 <div class="col-sm-3">
                   <p class="mb-1">대 화 입 력</p>
@@ -113,7 +102,6 @@
                     rows="2"
                   ></textarea>
                 </div>
-
                 <button type="submit" class="btn btn-primary btn-lg">
                   전 송
                 </button>
