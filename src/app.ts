@@ -1,5 +1,6 @@
 import express from "express";
 const app: express.Application = express();
+import {router} from './routers/router'
 import * as dotenv from "dotenv";
 import { MySQLconnect } from "./models";
 dotenv.config();
@@ -15,7 +16,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
 
 // Router url default route setting
-import {router} from './routers/router'
 app.use("/api", router);
 
 // get

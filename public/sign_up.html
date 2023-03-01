@@ -22,6 +22,35 @@
     ></script>
     <!-- Axios -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+      /* 회원 가입 시 */
+
+      async function registerAccount() {
+        const Email = document.getElementById("inputEmail").value;
+        const PhoneNumber = document.getElementById("inputPhoneNum").value;
+        const nickname = document.getElementById("inputNickname").value;
+        const password = document.getElementById("inputPassword").value;
+        const confirmPassword =
+          document.getElementById("confirmPassword").value;
+
+       
+
+        try {
+          const response = await axios.post("/api/registerAccount", {
+            nickname: nickname,
+            password: password,
+            confirmPassword: confirmPassword,
+          });
+          console.log(response.data);
+          alert("회원가입을 축하드립니다!"), window.location.replace("/signIn");
+        } catch (error) {
+          console.error(error);
+          alert("중복된 닉네임입니다.");
+          // alert(error.errorMessage); 로는 어떻게 받을까?
+        }
+      }
+    </script>
   </head>
   <body>
     <!--  html 전체 영역을 지정하는 container -->
@@ -64,14 +93,14 @@
               />
             </div>
             <div class="col-12">
-              <label for="inputPasswordCheck" class="form-label"
+              <label for="confirmPassword" class="form-label"
                 >Password Check</label
               >
               <input
                 type="text"
                 class="form-control"
-                id="inputPasswordCheck"
-                placeholder="Password Again"
+                id="confirmPassword"
+                placeholder="please confirm password"
               />
             </div>
             <div class="col-12">
@@ -85,12 +114,20 @@
             </div>
 
             <div class="col-6">
-              <button type="submit" class="btn btn-primary btn-lg">
+              <button
+                type="button"
+                class="btn btn-primary btn-lg"
+                onclick="registerAccount()"
+              >
                 회원가입 완료
               </button>
             </div>
             <div class="col-6">
-              <button type="submit" class="btn btn-secondary btn-lg">
+              <button
+                type="button"
+                class="btn btn-secondary btn-lg"
+                onclick="history.back()"
+              >
                 취소
               </button>
             </div>
