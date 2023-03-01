@@ -14,6 +14,10 @@ app.use(express.urlencoded({ extended: false }));
 // html 파일과 연결
 app.use(express.static("public"));
 
+// Router url default route setting
+import {router} from './routers/router'
+app.use("/api", router);
+
 // get
 app.get("/", (req: express.Request, res: express.Response) => {
   res.send("hello express");
