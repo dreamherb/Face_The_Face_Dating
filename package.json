@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "",
-    "start": "tsc-watch --onSuccess 'node ./dist/app.js'"
+    "start": "tsc-watch --onSuccess 'node ./dist/src/app.js'"
   },
   "author": "changhoon jang",
   "license": "ISC",

@@ -18,38 +18,4 @@ const asyncWrapper = (
   };
 };
 
-// 회원가입 정보 체크 정규식
-
-const checkEmail = (email: string) => {
-  const emailRegExp: RegExp = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-
-  const isValid: boolean = emailRegExp.test(email);
-
-  return isValid;
-};
-
-const checkNickname = (nickname: string) => {
-  const nicknameRegExp: RegExp = /^([a-zA-z0-9]).{2,}$/g;
-
-  const isValid: boolean = !nicknameRegExp.test(nickname);
-
-  return isValid ? true : false;
-};
-
-const checkPwd = (pwd: string) => {
-  const pwdRegExp: RegExp = /^[0-9a-zA-Z]{4,}$/g;
-
-  const isValid: boolean = !pwdRegExp.test(pwd);
-
-  return isValid ? true : false;
-};
-
-const checkPhoneNum = (phoneNum: string) => {
-  const phoneNumRegExp: RegExp = /\d{2,3}-\d{3,4}-\d{4}/g;
-
-  const isValid: boolean = !phoneNumRegExp.test(phoneNum);
-
-  return isValid ? true : false;
-};
-
-export { asyncWrapper, checkEmail, checkNickname, checkPwd, checkPhoneNum };
+export { asyncWrapper };

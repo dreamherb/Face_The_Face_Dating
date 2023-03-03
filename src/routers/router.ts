@@ -1,7 +1,7 @@
 import express, { Router } from "express";
-export const router: Router = express.Router()
+export const router: Router = express.Router();
 
-import * as AuthController from "../controllers/authController"
+import * as AuthController from "../controllers/authController";
 
-//api/auth
-// router.post("/auth/local", AuthController.create.local);   // 회원가입
+// /api/auth
+router.post("/auth/user_creation", AuthController.createUser.test); // 회원가입

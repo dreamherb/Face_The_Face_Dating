@@ -1,5 +1,157 @@
 import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
+import { asyncWrapper } from "../../utils/util";
+import { User } from "../models/entity/User";
+import { AppDataSource } from "../models/data-source";
 
-export {
+const userRepository = AppDataSource.getRepository(User);
 
+type user = {
+  user_no: number;
+  email: string;
+  phone_num: string;
+  pwd: string;
+  nickname: string;
+  on_chat: number;
+  page_refreshed_time: Date;
+};
+
+// 회원가입 시 정보체크
+class UserInfoCheck {
+  constructor() {}
+
+  checkEmail = (email: string): boolean => {
+    const emailRegExp: RegExp = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+
+    const isValid: boolean = emailRegExp.test(email);
+
+    return isValid;
+  };
+
+  checkNickname = (nickname: string): boolean => {
+    const nicknameRegExp: RegExp = /^([a-zA-z0-9]).{2,}$/g;
+
+    const isValid: boolean = nicknameRegExp.test(nickname);
+
+    return isValid ? true : false;
+  };
+
+  checkPwd = (pwd: string): boolean => {
+    const pwdRegExp: RegExp = /^[0-9a-zA-Z]{4,}$/g;
+
+    const isValid: boolean = pwdRegExp.test(pwd);
+
+    return isValid ? true : false;
+  };
+
+  checkPhoneNum = (phoneNum: string): boolean => {
+    const phoneNumRegExp: RegExp = /\d{2,3}-\d{3,4}-\d{4}/g;
+
+    const isValid: boolean = phoneNumRegExp.test(phoneNum);
+
+    return isValid ? true : false;
+  };
 }
+
+// 회원가입
+
+const a = (req: Request, res: Response) => {  console.log("작동합니다!")}
+// 어쩐 이유에선지 모르겠으나 (res, req)=>{} 형태의 익명함수 또는, 선언해놓은 함수명을 넣으면 잘 작동한다.
+// asyncWrapper가 작동하는 것으로 봐서 물론 함수 실행문도 잘 작동하는 듯 하다.
+
+const createUser = {
+test: a,
+    local: asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { email, phoneNum, pwd, pwdConfirmation, nickname } = req.body;
+      console.log("req.body는 이거다", req.body);
+
+      const userInfoCheck = new UserInfoCheck();
+
+      if (!userInfoCheck.checkEmail(email)) {
+        return res.json({
+          isSuccess: false,
+          msg: "이메일 형식이 올바르지 않습니다.",
+        });
+      }
+
+      if (!userInfoCheck.checkPhoneNum(phoneNum)) {
+        return res.json({
+          isSuccess: false,
+          msg: "전화번호 양식에 알맞지 않습니다.",
+        });
+      }
+
+      if (!userInfoCheck.checkPwd(pwd)) {
+        return res.json({
+          isSuccess: false,
+          msg: "비밀번호는 4자리 이상의 영문, 숫자만 가능합니다.",
+        });
+      }
+
+      if (pwd !== pwdConfirmation) {
+        return res.json({
+          isSuccess: false,
+          msg: "비밀번호가 일치하지 않습니다.",
+        });
+      }
+
+      if (!userInfoCheck.checkNickname(nickname)) {
+        return res.json({
+          isSuccess: false,
+          msg: "닉네임은 영문, 숫자만 가능하며 3자리이상만 가능합니다.",
+        });
+      }
+
+      // 이미 존재하는지 여부 확인
+
+      const isExistEmail: user | null = await userRepository.findOneBy({
+        email,
+      });
+
+      if (isExistEmail) {
+        return res.json({
+          isSuccess: false,
+          msg: "이미 존재하는 이메일입니다.",
+        });
+      }
+
+      const isExistNickname: user | null = await userRepository.findOneBy({
+        nickname,
+      });
+
+      if (isExistNickname) {
+        return res.json({
+          isSuccess: false,
+          msg: "이미 존재하는 닉네임입니다.",
+        });
+      }
+
+      // 회원 생성
+
+      const user = new User();
+
+      user.email = email;
+      user.phone_num = phoneNum;
+      user.pwd = pwd;
+      user.nickname = nickname;
+      user.on_chat = 0;
+      user.page_refreshed_time = new Date();
+
+      await userRepository.save(user);
+
+      const savedUsers = await userRepository.find();
+      console.log("All users from the db: ", savedUsers);
+
+      // jwt 발급까지 설정
+      // 반환값까지 설정 후 테스트 필요
+
+      return res.status(201).json({
+        isSuccess: true,
+        msg: "회원가입에 성공하였습니다.",
+      });
+    }
+  ),
+};
+
+export { createUser };
