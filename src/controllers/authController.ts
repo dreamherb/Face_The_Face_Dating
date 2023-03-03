@@ -1,8 +1,11 @@
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import { Request, Response, NextFunction } from "express";
 import { asyncWrapper } from "../../utils/util";
 import { User } from "../models/entity/User";
 import { AppDataSource } from "../models/data-source";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 const userRepository = AppDataSource.getRepository(User);
 
@@ -55,16 +58,10 @@ class UserInfoCheck {
 
 // 회원가입
 
-const a = (req: Request, res: Response) => {  console.log("작동합니다!")}
-// 어쩐 이유에선지 모르겠으나 (res, req)=>{} 형태의 익명함수 또는, 선언해놓은 함수명을 넣으면 잘 작동한다.
-// asyncWrapper가 작동하는 것으로 봐서 물론 함수 실행문도 잘 작동하는 듯 하다.
-
 const createUser = {
-test: a,
-    local: asyncWrapper(
+  local: asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       const { email, phoneNum, pwd, pwdConfirmation, nickname } = req.body;
-      console.log("req.body는 이거다", req.body);
 
       const userInfoCheck = new UserInfoCheck();
 
@@ -129,11 +126,12 @@ test: a,
 
       // 회원 생성
 
+      const hashedPwd: string = bcrypt.hashSync(pwd, 10);
       const user = new User();
 
       user.email = email;
       user.phone_num = phoneNum;
-      user.pwd = pwd;
+      user.pwd = hashedPwd;
       user.nickname = nickname;
       user.on_chat = 0;
       user.page_refreshed_time = new Date();
@@ -154,4 +152,48 @@ test: a,
   ),
 };
 
-export { createUser };
+// 로그인
+
+const logIn = {
+  local: asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { email, pwd } = req.body;
+
+      if (!email || !pwd) {
+        return res.json({
+          isSuccess: false,
+          msg: "이메일 혹은 비밀번호를 입력하세요.",
+        });
+      }
+
+      const user = await userRepository.findOneBy({
+        email,
+      });
+      if (!user) {
+        return res.json({
+          isSuccess: false,
+          msg: "이메일 혹은 비밀번호를 확인해주세요.",
+        });
+      }
+
+      const pwdCheck = bcrypt.compareSync(pwd, user.pwd);
+      if (!pwdCheck) {
+        return res.json({
+          isSuccess: false,
+          msg: "이메일 혹은 비밀번호를 확인해주세요.",
+        });
+      }
+
+      const token = jwt.sign({ email }, process.env.JWT_SECRET_KEY!);
+
+      return res.status(200).json({
+        isSuccess: true,
+        data: {
+          token,
+        },
+      });
+    }
+  ),
+};
+
+export { createUser, logIn };
