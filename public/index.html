@@ -51,6 +51,16 @@
         }
         localStorage.setItem("token", response.data.token); // 토큰 로컬에 저장
         alert("로그인에 성공하였습니다.");
+
+        // 프로필 작성 여부 확인
+        const getProfile = await axios.get("/api/auth/user/profile", {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        if (getProfile.isExist === false) {
+          return window.location.replace("/new_profile.html");
+        }
         window.location.replace("/chat_user_list.html");
       };
     </script>

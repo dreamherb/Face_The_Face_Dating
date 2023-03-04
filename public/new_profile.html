@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Profile 입력 Page</title>
+    <!-- JQuery -->
+    <script
+      src="https://code.jquery.com/jquery-3.6.3.js"
+      integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM="
+      crossorigin="anonymous"
+    ></script>
+    <!-- CSS -->
+    <link href="main.css" rel="stylesheet" />
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+      crossorigin="anonymous"
+    ></script>
+    <!-- Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        if (!localStorage.getItem("token")) {
+          alert("로그인 후 아용 가능합니다.");
+          window.location.replace("/");
+        }
+
+        //     const response = await axios.get("/api/auth/user/me", {headers: {
+        //     Authorization: `Bearer ${localStorage.getItem("token")}`,
+        //   }});
+
+        alert(
+          "사용하기 전 프로필 사진, 성별, 출생연도, 위치를 설정해주세요 :)"
+        );
+      });
+
+      saveProfile = () => {
+          
+
+      }
+
+    </script>
+  </head>
+  <body>
+    <div class="container py-5">
+      <div class="row">
+        <div class="col">
+          <nav class="navbar bg-light rounded-3 p-3 mb-4">
+            <div class="container-fluid">
+              <div class="text-end">
+                <button
+                  class="btn btn-primary"
+                  type="button"
+                  onclick="saveProfile"
+                >
+                  작성 완료
+                </button>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="card mb-4">
+            <div class="card-body text-center">
+              <img
+                src=""
+                onerror="this.style.display = 'none'"
+                alt="Profile Photo"
+                class="rounded-circle img-fluid"
+              />
+              <p></p>
+              <div class="d-flex justify-content-center mb-2">
+                <button type="button" class="btn btn-primary">
+                  Profile Photo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-8">
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Nick Name</p>
+                </div>
+                <div class="col-sm-9">
+                  <p class="text-muted mb-0">닉네임</p>
+                </div>
+              </div>
+              <hr />
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Gender</p>
+                </div>
+                <div class="col-sm-9">
+                  <select id="inputState" class="form-select text-muted mb-0">
+                    <option selected>Choose...</option>
+                    <option>...</option>
+                  </select>
+                </div>
+              </div>
+              <hr />
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Born at</p>
+                </div>
+
+                <div class="col-sm-9">
+                  <select id="inputState" class="form-select text-muted mb-0">
+                    <option selected>Choose...</option>
+                    <option>...</option>
+                  </select>
+                </div>
+              </div>
+              <hr />
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Location</p>
+                </div>
+
+                <div class="col-sm-9">
+                  <select id="inputState" class="form-select text-muted mb-0">
+                    <option selected>Choose...</option>
+                    <option>...</option>
+                  </select>
+                </div>
+              </div>
+              <hr />
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-1">상태메시지</p>
+                </div>
+                <div class="mb-3">
+                  <textarea
+                    class="form-control"
+                    id="exampleFormControlTextarea1"
+                    rows="3"
+                  ></textarea>
+                </div>
+
+                <button type="button" class="btn btn-primary btn-lg">
+                  저 장
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -10,7 +10,7 @@ const asyncWrapper = (
       return await asyncFn(req, res, next);
     } catch (error) {
       console.error(error);
-      return res.status(500).json({
+      return res.json({
         isSuccess: false,
         msg: "Internal Server Error",
       });
