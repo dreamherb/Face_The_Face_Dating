@@ -39,7 +39,7 @@
 
       signOut = () => {
         localStorage.clear();
-        alert("로그아웃 처리되었습니다!")
+        alert("로그아웃 처리되었습니다!");
         window.location.href = "/";
       };
     </script>
@@ -59,7 +59,11 @@
                 <button class="btn btn-primary" type="button">
                   마이 프로필
                 </button>
-                <button class="btn btn-secondary" type="button" onclick="signOut()">
+                <button
+                  class="btn btn-secondary"
+                  type="button"
+                  onclick="signOut()"
+                >
                   로그아웃
                 </button>
               </div>

@@ -20,7 +20,7 @@ export class User {
   @Column({ length: 20 })
   phone_num: string;
 
-  @Column({ length: 20 })
+  @Column()
   pwd: string;
 
   @Column({ length: 20 })

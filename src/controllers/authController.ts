@@ -33,8 +33,10 @@ class UserInfoCheck {
 
   checkNickname = (nickname: string): boolean => {
     const nicknameRegExp: RegExp = /^([a-zA-z0-9]).{2,}$/g;
+    const specialCharRegExp = /[!@#$%^&*()_\-+=~`{}\[\]\\|"':;<>,.\/?]/g;
 
-    const isValid: boolean = nicknameRegExp.test(nickname);
+    const isValid: boolean =
+      nicknameRegExp.test(nickname) && !nickname.match(specialCharRegExp);
 
     return isValid ? true : false;
   };

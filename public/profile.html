@@ -35,6 +35,12 @@
           window.location.replace("/");
         }
       });
+
+      signOut = () => {
+        localStorage.clear();
+        alert("로그아웃 처리되었습니다!");
+        window.location.href = "/";
+      };
     </script>
   </head>
   <body>
@@ -44,12 +50,16 @@
           <nav class="navbar bg-light rounded-3 p-3 mb-4">
             <div class="container-fluid">
               <div class="text-start">
-                <button class="btn btn-primary" type="submit">
+                <button class="btn btn-primary" type="button">
                   방 리스트로 이동
                 </button>
               </div>
               <div class="text-end">
-                <button class="btn btn-secondary" type="submit">
+                <button
+                  class="btn btn-secondary"
+                  type="button"
+                  onclick="signOut()"
+                >
                   로그아웃
                 </button>
               </div>
@@ -139,7 +149,7 @@
                   ></textarea>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-lg">
+                <button type="button" class="btn btn-primary btn-lg">
                   저 장
                 </button>
               </div>
