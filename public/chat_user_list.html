@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Chatting User List Page</title>
+    <!-- JQuery -->
+    <script
+      src="https://code.jquery.com/jquery-3.6.3.js"
+      integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM="
+      crossorigin="anonymous"
+    ></script>
     <!-- CSS -->
     <link href="main.css" rel="stylesheet" />
     <!-- Bootstrap -->
@@ -24,12 +30,17 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script>
-      $(document).ready(function () {
+      $(document).ready(() => {
         if (!localStorage.getItem("token")) {
           alert("로그인 후 아용 가능합니다.");
           window.location.replace("/");
         }
       });
+
+      signOut = () => {
+        localStorage.clear();
+        window.location.href = "/";
+      };
     </script>
   </head>
   <body>
