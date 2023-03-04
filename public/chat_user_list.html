@@ -39,6 +39,7 @@
 
       signOut = () => {
         localStorage.clear();
+        alert("로그아웃 처리되었습니다!")
         window.location.href = "/";
       };
     </script>
@@ -50,15 +51,15 @@
           <nav class="navbar bg-light rounded-3 p-3 mb-4">
             <div class="container-fluid">
               <!-- <div class="text-start">
-                <button class="btn btn-primary" type="submit">
+                <button class="btn btn-primary" type="button">
                   필터링, 추후 구현
                 </button>
               </div> -->
               <div class="text-end">
-                <button class="btn btn-primary" type="submit">
+                <button class="btn btn-primary" type="button">
                   마이 프로필
                 </button>
-                <button class="btn btn-secondary" type="submit">
+                <button class="btn btn-secondary" type="button" onclick="signOut()">
                   로그아웃
                 </button>
               </div>
@@ -272,7 +273,7 @@
                   ></textarea>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-lg">
+                <button type="button" class="btn btn-primary btn-lg">
                   저 장
                 </button>
               </div>

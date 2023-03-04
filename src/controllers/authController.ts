@@ -184,7 +184,9 @@ const logIn = {
         });
       }
 
-      const token = jwt.sign({ email }, process.env.JWT_SECRET_KEY!);
+      const token = jwt.sign({ email }, process.env.JWT_SECRET_KEY!, {
+        expiresIn: 60 * 60 * 6,
+      });
 
       return res.status(200).json({
         isSuccess: true,
