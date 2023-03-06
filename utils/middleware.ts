@@ -12,6 +12,7 @@ const auth = {
   tokenConfirmation: asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       const { authorization } = req.headers;
+
       if (!authorization) {
         return res.json({
           isSuccess: false,
@@ -38,7 +39,6 @@ const auth = {
         value,
         process.env.JWT_SECRET_KEY!
       ) as JwtPayload;
-      console.log("email은 이것이다!", email);
 
       const user = await userRepository.findOneBy({
         email,

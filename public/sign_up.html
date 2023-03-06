@@ -38,7 +38,7 @@
           document.getElementById("confirmPassword").value;
         const nickname = document.getElementById("inputNickname").value;
 
-        const response = await axios.post("/api/auth/user_creation", {
+        const response = await axios.post("/api/auth/new_user", {
           email,
           phoneNum,
           pwd,

@@ -32,7 +32,9 @@ export class User {
   @Column({ type: "timestamp" })
   page_refreshed_time: Date;
 
-  @OneToOne(() => Profile)
+  @OneToOne(() => Profile, {
+    cascade: true
+  })
   @JoinColumn()
   profile: Profile;
 

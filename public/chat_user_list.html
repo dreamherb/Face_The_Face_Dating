@@ -33,9 +33,22 @@
       $(document).ready(() => {
         if (!localStorage.getItem("token")) {
           alert("로그인 후 아용 가능합니다.");
-          window.location.replace("/");
+          return window.location.replace("/");
         }
+        isProfileExist();
       });
+
+      isProfileExist = async () => {
+        const getProfile = await axios.get("/api/user/profile", {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        if (getProfile.data.isExist === false) {
+          window.location.replace("/new_profile.html");
+        }
+      };
 
       signOut = () => {
         localStorage.clear();

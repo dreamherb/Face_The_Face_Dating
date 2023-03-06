@@ -32,23 +32,49 @@
       $(document).ready(function () {
         if (!localStorage.getItem("token")) {
           alert("로그인 후 아용 가능합니다.");
-          window.location.replace("/");
+          return window.location.replace("/");
         }
-
-        //     const response = await axios.get("/api/auth/user/me", {headers: {
-        //     Authorization: `Bearer ${localStorage.getItem("token")}`,
-        //   }});
 
         alert(
           "사용하기 전 프로필 사진, 성별, 출생연도, 위치를 설정해주세요 :)"
         );
       });
 
-      saveProfile = () => {
-          
+      saveProfile = async () => {
+        const gender = $(`#inputGender option:selected`).val();
+        const region = $(`#inputRegion option:selected`).val();
+        const birthYear = $(`#inputBirthYear`).val();
+        const statusMsg = $(`#statusMsg`)
+          .val()
+          .replace(/(?:\r\n|\r|\n)/g, "<br/>");
 
-      }
+        console.log("saveProfile은 통과한다");
+        const token = localStorage.getItem("token");
+        console.log(token, "token은 이거다");
+        console.log(gender, "gender 이거다");
+        console.log(region, "region은 이거다");
+        console.log(birthYear, "birthyear은 이거다");
+        console.log(statusMsg, "statusMsg은 이거다");
 
+        const response = await axios.post("/api/user/new_profile",{
+            gender,
+            region,
+            birthYear,
+            statusMsg,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        if (response.data.isSuccess === false) {
+          return alert(response.data.msg);
+        }
+        alert(response.data.msg);
+        window.location.replace("/chat_user_list.html");
+      };
     </script>
   </head>
   <body>
@@ -56,17 +82,7 @@
       <div class="row">
         <div class="col">
           <nav class="navbar bg-light rounded-3 p-3 mb-4">
-            <div class="container-fluid">
-              <div class="text-end">
-                <button
-                  class="btn btn-primary"
-                  type="button"
-                  onclick="saveProfile"
-                >
-                  작성 완료
-                </button>
-              </div>
-            </div>
+            <div class="container-fluid"></div>
           </nav>
         </div>
       </div>
@@ -93,23 +109,17 @@
         <div class="col-lg-8">
           <div class="card mb-4">
             <div class="card-body">
-              <div class="row">
-                <div class="col-sm-3">
-                  <p class="mb-0">Nick Name</p>
-                </div>
-                <div class="col-sm-9">
-                  <p class="text-muted mb-0">닉네임</p>
-                </div>
-              </div>
               <hr />
               <div class="row">
                 <div class="col-sm-3">
                   <p class="mb-0">Gender</p>
                 </div>
                 <div class="col-sm-9">
-                  <select id="inputState" class="form-select text-muted mb-0">
+                  <select id="inputGender" class="form-select text-muted mb-0">
                     <option selected>Choose...</option>
-                    <option>...</option>
+                    <option>남성</option>
+                    <option>여성</option>
+                    <option>기타</option>
                   </select>
                 </div>
               </div>
@@ -120,22 +130,40 @@
                 </div>
 
                 <div class="col-sm-9">
-                  <select id="inputState" class="form-select text-muted mb-0">
-                    <option selected>Choose...</option>
-                    <option>...</option>
-                  </select>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="inputBirthYear"
+                    placeholder="ex) 1993"
+                  />
                 </div>
               </div>
               <hr />
               <div class="row">
                 <div class="col-sm-3">
-                  <p class="mb-0">Location</p>
+                  <p class="mb-0">Region</p>
                 </div>
 
                 <div class="col-sm-9">
-                  <select id="inputState" class="form-select text-muted mb-0">
+                  <select id="inputRegion" class="form-select text-muted mb-0">
                     <option selected>Choose...</option>
-                    <option>...</option>
+                    <option>서울</option>
+                    <option>부산</option>
+                    <option>대구</option>
+                    <option>인천</option>
+                    <option>광주</option>
+                    <option>대전</option>
+                    <option>울산</option>
+                    <option>세종</option>
+                    <option>경기</option>
+                    <option>강원</option>
+                    <option>충북</option>
+                    <option>충남</option>
+                    <option>전북</option>
+                    <option>전남</option>
+                    <option>경북</option>
+                    <option>경남</option>
+                    <option>제주</option>
                   </select>
                 </div>
               </div>
@@ -147,12 +175,18 @@
                 <div class="mb-3">
                   <textarea
                     class="form-control"
-                    id="exampleFormControlTextarea1"
+                    id="statusMsg"
                     rows="3"
+                    cols="20"
+                    wrap="hard"
                   ></textarea>
                 </div>
 
-                <button type="button" class="btn btn-primary btn-lg">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-lg"
+                  onclick="saveProfile()"
+                >
                   저 장
                 </button>
               </div>

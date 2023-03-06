@@ -143,9 +143,6 @@ const createUser = {
       const savedUsers = await userRepository.find();
       console.log("All users from the db: ", savedUsers);
 
-      // jwt 발급까지 설정
-      // 반환값까지 설정 후 테스트 필요
-
       return res.status(201).json({
         isSuccess: true,
         msg: "회원가입에 성공하였습니다.",
@@ -192,9 +189,7 @@ const logIn = {
 
       return res.status(200).json({
         isSuccess: true,
-        data: {
-          token,
-        },
+        token,
       });
     }
   ),
