@@ -24,9 +24,9 @@ app.get("/", (req: express.Request, res: express.Response) => {
 });
 
 
-// 3000 포트로 서버 실행
-app.listen(process.env.PORT, () => {
-  console.log(process.env.PORT, "번 에서 실행중");
-});
+// // 3000 포트로 서버 실행
+// app.listen(process.env.PORT, () => {
+//   console.log(process.env.PORT, "번 에서 실행중");
+// });
 
-// export { app };
+export { app };
