@@ -37,18 +37,13 @@
         }
       });
 
-      // deprecated
-      // $("#loginForm").keypress(function (e) {
-      //   if (e.keyCode == 13) {
-      //     logIn();
-      //   }
-      // });
-      const input = document.querySelector("Form");
-      input.addEventListener("keydown", e => {
-        if (e.keyCode === 13) {
-          logIn()
-        }
-      });
+      window.onload = logInByEnter = () => {
+        $("#loginForm").keydown((e) => {
+          if (e.keyCode === 13) {
+            logIn();
+          }
+        });
+      };
 
       logIn = async () => {
         const email = document.getElementById("inputEmail").value;
