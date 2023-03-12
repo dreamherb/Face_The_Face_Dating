@@ -28,14 +28,43 @@
     ></script>
     <!-- Axios -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script>
+      // import { io, Socket } from "socket.io-client";
+      // const socket = io();
+      const socket = io.connect(
+        "http://localhost:3000"
+        // ,{
+        // path: '/socket.io', // 서버 path와 일치시켜준다, 생략 시 기본 설정 /socket.io
+        // transports: ['websocket'] // 처음부터 ws로 통신하고자 할 경우, transports 옵션 값을 ['websocket']으로 추가 설정해주면 된다.
+        //}
+      );
       $(document).ready(function () {
         if (!localStorage.getItem("token")) {
           alert("로그인 후 아용 가능합니다.");
           window.location.replace("/");
         }
+
+        socket.on("connect", () => {
+          console.log("클라이언트 측 Socket 실행", socket.id);
+        });
       });
+
+      socket.on("disconnect", (reason) => {
+        console.log("소켓이 종료중입니다.");
+        console.log(socket.connected); // false
+        console.log("클라이언트 Reason은 이것입니다!", reason);
+      });
+
+      const exitRoom = () => {
+        // 연결 종료 처리
+        socket.disconnect();
+        //챗 리스트로 이동
+        window.location.replace("/chat_user_list.html");
+      };
     </script>
+    <!-- Socket.io -->
+    <script></script>
   </head>
   <body>
     <div class="container py-5">
@@ -88,7 +117,13 @@
               >
                 No
               </button>
-              <button type="button" class="btn btn-primary">Yes</button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="exitRoom()"
+              >
+                Yes
+              </button>
             </div>
           </div>
         </div>
