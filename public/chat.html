@@ -48,6 +48,10 @@
         socket.on("connect", () => {
           console.log("클라이언트 측 Socket 실행", socket.id);
         });
+
+        // const userSocketId = socket.id;
+        const roomId = "1"
+        socket.emit("joinChat", { roomId });
       });
 
       socket.on("disconnect", (reason) => {

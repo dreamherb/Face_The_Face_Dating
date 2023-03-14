@@ -36,7 +36,29 @@
           return window.location.replace("/");
         }
         isProfileExist();
+
+        // 유저 새로고침 시 시간 기록
+        isRefreshedTime();
       });
+
+      isRefreshedTime = async () => {
+        const pageRefreshingMoment = new Date();
+        const response = await axios.patch(
+          "/api/user/refreshedTimeLog",
+          {
+            pageRefreshingMoment,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        if (response.data.isSuccess === false) {
+          console.log("유저 시간이 제대로 저장되지 않았습니다!");
+        }
+      };
 
       isProfileExist = async () => {
         const getProfile = await axios.get("/api/user/profile", {

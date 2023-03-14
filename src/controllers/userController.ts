@@ -7,7 +7,6 @@ import * as dotenv from "dotenv";
 dotenv.config();
 const userRepository = AppDataSource.getRepository(User);
 
-
 const create = {
   profile: asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
@@ -51,8 +50,7 @@ const create = {
       profile.birth_year = birthYear;
       profile.region = region;
       profile.status_msg = statusMsg;
-    
-    
+
       targetUser!.profile = profile;
       console.log("targetUser는 이거다!", targetUser);
 
@@ -71,16 +69,15 @@ const get = {
     async (req: Request, res: Response, next: NextFunction) => {
       const { user } = res.locals;
 
+      const targetUser = await userRepository.findOne({
+        where: {
+          user_no: user.user_no,
+        },
+        relations: {
+          profile: true,
+        },
+      });
 
-            const targetUser = await userRepository.findOne({
-                where: {
-                    user_no: user.user_no,
-                },
-                relations: {
-                    profile: true
-                },
-              });
-            
       if (!targetUser!.profile.id) {
         return res.json({
           isSuccess: false,
@@ -110,6 +107,25 @@ const get = {
 const update = {
   profile: asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {}
+  ),
+
+  pageRefreshedTime: asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { user } = res.locals;
+      const { pageRefreshingMoment } = req.body;
+
+      const targetUser = await userRepository.findOneBy({
+        user_no: user.user_no,
+      });
+
+      targetUser!.page_refreshed_time = pageRefreshingMoment;
+      await userRepository.save(targetUser!);
+
+      console.log("서버 측에서 유저 시간이 제대로 저장되었습니다.");
+      return res.json({
+        isSuccess: true,
+      });
+    }
   ),
 };
 
