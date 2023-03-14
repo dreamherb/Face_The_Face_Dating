@@ -102,6 +102,37 @@ const get = {
       });
     }
   ),
+
+  userList: asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { user } = res.locals;
+
+      const userList = await userRepository.find({
+        where: {
+          loginStatus: 1,
+        },
+        relations: {
+          profile: true,
+        },
+        order: {
+          page_refreshed_time: "DESC",
+        },
+      });
+
+      if (!userList) {
+        console.log("userlist가 조회되지 않았습니다!");
+      }
+
+      // const userListWithoutMe = userList.filter(
+      //   (v) => v.user_no !== user.user_no
+      // );
+
+      return res.status(200).json({
+        isSuccess: true,
+        userList: userList,
+      });
+    }
+  ),
 };
 
 const update = {

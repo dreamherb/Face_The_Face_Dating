@@ -44,16 +44,51 @@
         getUserList();
       });
 
-      getUserList() = async () => {
+      getUserList = async () => {
         const response = await axios.get("/api/user/user_list", {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          })
-          if (response.data.isSuccess === false) {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        if (response.data.isSuccess === false) {
           console.log("접속해있는 유저리스트 불러오기에 실패하였습니다.");
         }
 
+        const { userList } = response.data;
+        console.log("userlist는 이것입니다!", userList);
+
+        userList.map((v) => {
+          let { nickname } = v;
+          let { gender } = v.profile;
+          let birthYear = v.profile.birth_year;
+          let { region } = v.profile;
+          let statusMsg = v.profile.status_msg;
+
+          let temp_html = `
+          <div class="col">
+          <div class="card mb-3" style="max-width: 540px">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img src="..." class="img-fluid rounded-start" alt="..." />
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title">${nickname}/${gender}/${birthYear}/${region}</h5>
+                  <p class="card-text">${statusMsg}</p>
+                  <p class="card-text">
+                    <small class="text-muted">Last updated 3 mins ago</small>
+                  </p>
+                  <a href="#" class="btn btn-primary">대화요청</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`
+        $('#userList').append(temp_html);
+
+        });
+
+        
       };
 
       isRefreshedTime = async () => {
@@ -128,218 +163,7 @@
       </div>
 
       <!-- 채팅 리스트 구현부 -->
-      <div class="row row-cols-2">
-        <!-- 채팅가능자 목록 구현부 -->
-        <div class="col">
-          <div class="card mb-3" style="max-width: 540px">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <img src="..." class="img-fluid rounded-start" alt="..." />
-              </div>
-              <div class="col-md-8">
-                <div class="card-body">
-                  <h5 class="card-title">닉네임/성별/나이/위치</h5>
-                  <p class="card-text">상태메시지</p>
-                  <p class="card-text">
-                    <small class="text-muted">Last updated 3 mins ago</small>
-                  </p>
-                  <a href="#" class="btn btn-primary">대화요청</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col">
-          <div class="card mb-3" style="max-width: 540px">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <img src="..." class="img-fluid rounded-start" alt="..." />
-              </div>
-              <div class="col-md-8">
-                <div class="card-body">
-                  <h5 class="card-title">Card title</h5>
-                  <p class="card-text">
-                    This is a wider card with supporting text below as a natural
-                    lead-in to additional content. This content is a little bit
-                    longer.
-                  </p>
-                  <p class="card-text">
-                    <small class="text-muted">Last updated 3 mins ago</small>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col">
-          <div class="card mb-3" style="max-width: 540px">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <img src="..." class="img-fluid rounded-start" alt="..." />
-              </div>
-              <div class="col-md-8">
-                <div class="card-body">
-                  <h5 class="card-title">Card title</h5>
-                  <p class="card-text">
-                    This is a wider card with supporting text below as a natural
-                    lead-in to additional content. This content is a little bit
-                    longer.
-                  </p>
-                  <p class="card-text">
-                    <small class="text-muted">Last updated 3 mins ago</small>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col">
-          <div class="card mb-3" style="max-width: 540px">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <img src="..." class="img-fluid rounded-start" alt="..." />
-              </div>
-              <div class="col-md-8">
-                <div class="card-body">
-                  <h5 class="card-title">Card title</h5>
-                  <p class="card-text">
-                    This is a wider card with supporting text below as a natural
-                    lead-in to additional content. This content is a little bit
-                    longer.
-                  </p>
-                  <p class="card-text">
-                    <small class="text-muted">Last updated 3 mins ago</small>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col">
-          <div class="card mb-3" style="max-width: 540px">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <img src="..." class="img-fluid rounded-start" alt="..." />
-              </div>
-              <div class="col-md-8">
-                <div class="card-body">
-                  <h5 class="card-title">Card title</h5>
-                  <p class="card-text">
-                    This is a wider card with supporting text below as a natural
-                    lead-in to additional content. This content is a little bit
-                    longer.
-                  </p>
-                  <p class="card-text">
-                    <small class="text-muted">Last updated 3 mins ago</small>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 후보1 -->
-      <!-- <div class="row row-cols-2">
-        <div class="col">Column</div>
-        <div class="col">Column</div>
-        <div class="col">Column</div>
-        <div class="col">Column</div>
-        <div class="col">Column</div>
-        <div class="col">Column</div>
-      </div> -->
-
-      <!-- <div class="row">
-        <div class="col-lg-4">
-          <div class="card mb-4">
-            <div class="card-body text-center">
-              <img
-                src=""
-                onerror="this.style.display = 'none'"
-                alt="Profile Photo"
-                class="rounded-circle img-fluid"
-              />
-              <p></p>
-              <div class="d-flex justify-content-center mb-2">
-                <button type="button" class="btn btn-primary">Profile Photo</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-8">
-          <div class="card mb-4">
-            <div class="card-body">
-              <div class="row">
-                <div class="col-sm-3">
-                  <p class="mb-0">Nick Name</p>
-                </div>
-                <div class="col-sm-9">
-                  <p class="text-muted mb-0">닉네임</p>
-                </div>
-              </div>
-              <hr />
-              <div class="row">
-                <div class="col-sm-3">
-                  <p class="mb-0">Gender</p>
-                </div>
-                <div class="col-sm-9">
-                  <select id="inputState" class="form-select text-muted mb-0">
-                    <option selected>Choose...</option>
-                    <option>...</option>
-                  </select>
-                </div>
-              </div>
-              <hr />
-              <div class="row">
-                <div class="col-sm-3">
-                  <p class="mb-0">Born at</p>
-                </div>
-
-                <div class="col-sm-9">
-                  <select id="inputState" class="form-select text-muted mb-0">
-                    <option selected>Choose...</option>
-                    <option>...</option>
-                  </select>
-                </div>
-              </div>
-              <hr />
-              <div class="row">
-                <div class="col-sm-3">
-                  <p class="mb-0">Location</p>
-                </div>
-
-                <div class="col-sm-9">
-                  <select id="inputState" class="form-select text-muted mb-0">
-                    <option selected>Choose...</option>
-                    <option>...</option>
-                  </select>
-                </div>
-              </div>
-              <hr />
-              <div class="row">
-                <div class="col-sm-3">
-                  <p class="mb-1">상태메시지</p>
-                </div>
-                <div class="mb-3">
-                  <textarea
-                    class="form-control"
-                    id="exampleFormControlTextarea1"
-                    rows="3"
-                  ></textarea>
-                </div>
-
-                <button type="button" class="btn btn-primary btn-lg">
-                  저 장
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> -->
+      <div class="row row-cols-2" id="userList">
     </div>
   </body>
 </html>
