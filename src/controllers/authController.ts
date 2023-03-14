@@ -136,6 +136,7 @@ const createUser = {
       user.pwd = hashedPwd;
       user.nickname = nickname;
       user.on_chat = 0;
+      user.loginStatus = 0;
       user.page_refreshed_time = new Date();
 
       await userRepository.save(user);
@@ -187,6 +188,9 @@ const logIn = {
         expiresIn: 60 * 60 * 6,
       });
 
+      user.loginStatus = 1;
+      await userRepository.save(user);
+
       return res.status(200).json({
         isSuccess: true,
         token,
@@ -195,4 +199,20 @@ const logIn = {
   ),
 };
 
-export { createUser, logIn };
+// 로그아웃
+
+const logOut = {
+  local: asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { user } = res.locals;
+
+      user.loginStatus = 0;
+      await userRepository.save(user);
+      return res.status(200).json({
+        isSuccess: true,
+      });
+    }
+  ),
+}; 
+
+export { createUser, logIn, logOut };

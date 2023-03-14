@@ -39,12 +39,27 @@
 
         // 유저 새로고침 시 시간 기록
         isRefreshedTime();
+
+        // 접속해있는 채팅 유저 리스트 가져오기
+        getUserList();
       });
+
+      getUserList() = async () => {
+        const response = await axios.get("/api/user/user_list", {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          })
+          if (response.data.isSuccess === false) {
+          console.log("접속해있는 유저리스트 불러오기에 실패하였습니다.");
+        }
+
+      };
 
       isRefreshedTime = async () => {
         const pageRefreshingMoment = new Date();
         const response = await axios.patch(
-          "/api/user/refreshedTimeLog",
+          "/api/user/refreshed_timeLog",
           {
             pageRefreshingMoment,
           },
@@ -72,7 +87,12 @@
         }
       };
 
-      signOut = () => {
+      signOut = async () => {
+        const response = await axios.patch("/api/auth/logout", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
         localStorage.clear();
         alert("로그아웃 처리되었습니다!");
         window.location.href = "/";

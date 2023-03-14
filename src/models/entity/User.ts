@@ -29,6 +29,9 @@ export class User {
   @Column({ type: "tinyint" })
   on_chat: number;
 
+  @Column({ type: "tinyint" })
+  loginStatus: number;
+
   @Column({ type: "timestamp" })
   page_refreshed_time: Date;
 
