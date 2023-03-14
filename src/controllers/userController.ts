@@ -92,13 +92,21 @@ const get = {
     }
   ),
 
-  nickname: asyncWrapper(
+  userInfo: asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       const { user } = res.locals;
-      const { nickname } = user;
+      const targetUser = await userRepository.findOne({
+        where: {
+          user_no: user.user_no,
+        },
+        relations: {
+          profile: true,
+        },
+      });
+
       return res.status(200).json({
         isSuccess: true,
-        nickname,
+        user: targetUser,
       });
     }
   ),
@@ -123,13 +131,13 @@ const get = {
         console.log("userlist가 조회되지 않았습니다!");
       }
 
-      // const userListWithoutMe = userList.filter(
-      //   (v) => v.user_no !== user.user_no
-      // );
+      const userListWithoutMe = userList.filter(
+        (v) => v.user_no !== user.user_no
+      );
 
       return res.status(200).json({
         isSuccess: true,
-        userList: userList,
+        userList: userListWithoutMe,
       });
     }
   ),
@@ -137,7 +145,41 @@ const get = {
 
 const update = {
   profile: asyncWrapper(
-    async (req: Request, res: Response, next: NextFunction) => {}
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { user } = res.locals;
+      const { gender, region, birthYear, statusMsg } = req.body;
+
+      const yearRegExp: RegExp = /([12][0-9][0-9][0-9])/g;
+      if (!yearRegExp.test(birthYear) || !(birthYear.length === 4)) {
+        return res.json({
+          isSuccess: false,
+          msg: "출생연도를 제대로 입력해주세요.",
+        });
+      }
+
+      const targetUser = await userRepository.findOne({
+        where: {
+          user_no: user.user_no,
+        },
+        relations: {
+          profile: true,
+        },
+      });
+
+      targetUser!.profile.gender = gender;
+      targetUser!.profile.birth_year = birthYear;
+      targetUser!.profile.region = region;
+      targetUser!.profile.status_msg = statusMsg;
+
+      console.log("수정할떄 targetUser는 이거다!", targetUser);
+
+      await userRepository.save(targetUser!); // entity에서 cascade 옵션을 주었기에 user만 저장해도 profile까지 같이 저장된다.
+
+      return res.json({
+        isSuccess: true,
+        msg: "프로필 수정에 성공하였습니다!",
+      });
+    }
   ),
 
   pageRefreshedTime: asyncWrapper(
