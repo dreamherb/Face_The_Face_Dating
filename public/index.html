@@ -69,6 +69,7 @@
         });
 
         if (getProfile.data.isExist === false) {
+          console.log("프로필이 존재하지 않으니 작성하러 이동하세욧!!!");
           return window.location.replace("/new_profile.html");
         }
         window.location.replace("/chat_user_list.html");

@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { Request, Response, NextFunction } from "express";
 import { asyncWrapper } from "../../utils/util";
 import { User } from "../models/entity/User";
+import { Profile } from "../models/entity/Profile";
 import { AppDataSource } from "../models/data-source";
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -130,6 +131,7 @@ const createUser = {
 
       const hashedPwd: string = bcrypt.hashSync(pwd, 10);
       const user = new User();
+      const profile = new Profile();
 
       user.email = email;
       user.phone_num = phoneNum;
@@ -138,6 +140,11 @@ const createUser = {
       user.on_chat = 0;
       user.loginStatus = 0;
       user.page_refreshed_time = new Date();
+      user.profile = profile;
+      user.profile.birth_year = "1";
+      user.profile.gender = "1";
+      user.profile.region = "1";
+      user.profile.status_msg = "1";
 
       await userRepository.save(user);
 
@@ -206,13 +213,19 @@ const logOut = {
     async (req: Request, res: Response, next: NextFunction) => {
       const { user } = res.locals;
 
-      user.loginStatus = 0;
-      await userRepository.save(user);
+      const targetUser = await userRepository.findOneBy({
+        user_no: user.user_no,
+      });
+
+      targetUser!.loginStatus = 0;
+
+      await userRepository.save(targetUser!);
+
       return res.status(200).json({
         isSuccess: true,
       });
     }
   ),
-}; 
+};
 
 export { createUser, logIn, logOut };

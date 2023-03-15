@@ -28,9 +28,20 @@
     ></script>
     <!-- Axios -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
+    <script src="/socket.io/socket.io.js"></script>
     <script>
-      $(document).ready(() => {
+      const socket = io.connect(
+        "http://localhost:3000"
+        // ,{
+        // path: '/socket.io', // 서버 path와 일치시켜준다, 생략 시 기본 설정 /socket.io
+        // transports: ['websocket'] // 처음부터 ws로 통신하고자 할 경우, transports 옵션 값을 ['websocket']으로 추가 설정해주면 된다.
+        //}
+      );
+
+      // 현재 사용자 닉네임
+      let userNickname;
+
+    $(document).ready(() => {
         if (!localStorage.getItem("token")) {
           alert("로그인 후 아용 가능합니다.");
           return window.location.replace("/");
@@ -42,7 +53,15 @@
 
         // 접속해있는 채팅 유저 리스트 가져오기
         getUserList();
+
+        socket.emit("logCheck", "연결 전 방확인과 id 입니다")
+        socket.on("connect", () => {
+          console.log("chat user list 클라이언트 측 Socket 실행", socket.id);
+        });
+        socket.emit("logCheck", "연결 하고 나서 방확인과 id 입니다")
+
       });
+      
 
       getUserList = async () => {
         const response = await axios.get("/api/user/user_list", {
@@ -78,18 +97,39 @@
                   <p class="card-text">
                     <small class="text-muted">Last updated 3 mins ago</small>
                   </p>
-                  <a href="#" class="btn btn-primary">대화요청</a>
+                  <button class="btn btn-primary" type="button" onclick="sendChatRequest()">대화요청</button>
                 </div>
               </div>
             </div>
           </div>
         </div>`
         $('#userList').append(temp_html);
-
         });
-
-        
       };
+
+      sendChatRequest = async() => {
+        // const response = await axios.post("/api/chat/request",{
+        //   requestedNickname
+        //   },
+        //   {
+        //     headers: {
+        //       Authorization: `Bearer ${localStorage.getItem("token")}`,
+        //     },
+        //   }
+        // );
+
+        // if (response.data.isSuccess === false) {
+        //   alert("승인이 거절되었습니다.")
+        // }
+
+        const requestingSocketId = socket.id
+        socket.emit("requestChat", { requestingSocketId, userNickname })
+        // 승인일 시 해당 유저가 속한 방 번호로 socket 입장하고 방 입장하기
+      }
+
+      socket.on("checkRequest", (payload) => {
+          alert(`상대방의 ${payload} 가 제대로 넘어옵니다!`)
+        })
 
       isRefreshedTime = async () => {
         const pageRefreshingMoment = new Date();
@@ -111,23 +151,25 @@
       };
 
       isProfileExist = async () => {
-        const getProfile = await axios.get("/api/user/profile", {
+        const profileInfo = await axios.get("/api/user/profile", {
           headers: {
             authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
 
-        if (getProfile.data.isExist === false) {
+        if (profileInfo.data.isExist === false) {
           window.location.replace("/new_profile.html");
         }
+         userNickname  = profileInfo.data.userNickname
       };
 
       signOut = async () => {
-        const response = await axios.patch("/api/auth/logout", {
+        const response = await axios.get("/api/auth/logout", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
+
         localStorage.clear();
         alert("로그아웃 처리되었습니다!");
         window.location.href = "/";

@@ -28,10 +28,9 @@
     ></script>
     <!-- Axios -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Socket.io -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      // import { io, Socket } from "socket.io-client";
-      // const socket = io();
       const socket = io.connect(
         "http://localhost:3000"
         // ,{
@@ -44,14 +43,14 @@
           alert("로그인 후 아용 가능합니다.");
           window.location.replace("/");
         }
-
-        socket.on("connect", () => {
-          console.log("클라이언트 측 Socket 실행", socket.id);
-        });
+        // socket.on("connect", () => {
+        //   console.log("클라이언트 측 Socket 실행", socket.id);
+        // });
 
         // const userSocketId = socket.id;
-        const roomId = "1"
+        const roomId = "1";
         socket.emit("joinChat", { roomId });
+        socket.emit("logCheck", "챗방에 들어오고 나서 아이디입니다.")
       });
 
       socket.on("disconnect", (reason) => {
@@ -66,9 +65,8 @@
         //챗 리스트로 이동
         window.location.replace("/chat_user_list.html");
       };
+
     </script>
-    <!-- Socket.io -->
-    <script></script>
   </head>
   <body>
     <div class="container py-5">

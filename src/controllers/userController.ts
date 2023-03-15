@@ -40,19 +40,19 @@ const create = {
       console.log(region, "region 는 이거다");
       console.log(statusMsg, "statusMsg 는 이거다");
 
-      const profile = new Profile();
-
-      const targetUser = await userRepository.findOneBy({
-        user_no: user.user_no,
+      const targetUser = await userRepository.findOne({
+        where: {
+          user_no: user.user_no,
+        },
+        relations: {
+          profile: true,
+        },
       });
 
-      profile.gender = gender;
-      profile.birth_year = birthYear;
-      profile.region = region;
-      profile.status_msg = statusMsg;
-
-      targetUser!.profile = profile;
-      console.log("targetUser는 이거다!", targetUser);
+      targetUser!.profile.gender = gender;
+      targetUser!.profile.birth_year = birthYear;
+      targetUser!.profile.region = region;
+      targetUser!.profile.status_msg = statusMsg;
 
       await userRepository.save(targetUser!); // entity에서 cascade 옵션을 주었기에 user만 저장해도 profile까지 같이 저장된다.
 
@@ -64,7 +64,7 @@ const create = {
   ),
 };
 
-const get = {
+const read = {
   profile: asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       const { user } = res.locals;
@@ -78,7 +78,7 @@ const get = {
         },
       });
 
-      if (!targetUser!.profile.id) {
+      if (targetUser!.profile.birth_year === "1") {
         return res.json({
           isSuccess: false,
           isExist: false,
@@ -88,6 +88,7 @@ const get = {
       return res.status(200).json({
         isSuccess: true,
         isExist: true,
+        userNickname: targetUser!.nickname,
       });
     }
   ),
@@ -115,7 +116,16 @@ const get = {
     async (req: Request, res: Response, next: NextFunction) => {
       const { user } = res.locals;
 
+      const targetUser = await userRepository.findOne({
+        where: {
+          user_no: user.user_no,
+        },
+      });
+
       const userList = await userRepository.find({
+        select: {
+          nickname: true,
+        },
         where: {
           loginStatus: 1,
         },
@@ -132,7 +142,7 @@ const get = {
       }
 
       const userListWithoutMe = userList.filter(
-        (v) => v.user_no !== user.user_no
+        (v) => v.nickname !== targetUser!.nickname
       );
 
       return res.status(200).json({
@@ -202,4 +212,4 @@ const update = {
   ),
 };
 
-export { get, create, update };
+export { read, create, update };
