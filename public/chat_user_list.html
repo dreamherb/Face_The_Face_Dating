@@ -41,12 +41,13 @@
       // 현재 사용자 닉네임
       let userNickname;
 
-    $(document).ready(() => {
+    $(document).ready( async() => {
         if (!localStorage.getItem("token")) {
           alert("로그인 후 아용 가능합니다.");
           return window.location.replace("/");
         }
-        isProfileExist();
+         // 이렇게 해주지 않으면 promise가 반환된다. 함수 자체가 비동기처리를 한 함수이기에 똑같이 비동기를 처리해 동기로 바꿔주었다.
+        userNickname = await isProfileExist();
 
         // 유저 새로고침 시 시간 기록
         isRefreshedTime();
@@ -54,12 +55,11 @@
         // 접속해있는 채팅 유저 리스트 가져오기
         getUserList();
 
-        socket.emit("logCheck", "연결 전 방확인과 id 입니다")
         socket.on("connect", () => {
           console.log("chat user list 클라이언트 측 Socket 실행", socket.id);
         });
-        socket.emit("logCheck", "연결 하고 나서 방확인과 id 입니다")
-
+        console.log("함수실행하고 나서 userNickname은 이것이다!", userNickname);
+        socket.emit("sendNickname", { userNickname })
       });
       
 
@@ -97,7 +97,7 @@
                   <p class="card-text">
                     <small class="text-muted">Last updated 3 mins ago</small>
                   </p>
-                  <button class="btn btn-primary" type="button" onclick="sendChatRequest()">대화요청</button>
+                  <button class="btn btn-primary" type="button" onclick="sendChatRequest('${nickname}')">대화요청</button>
                 </div>
               </div>
             </div>
@@ -107,23 +107,9 @@
         });
       };
 
-      sendChatRequest = async() => {
-        // const response = await axios.post("/api/chat/request",{
-        //   requestedNickname
-        //   },
-        //   {
-        //     headers: {
-        //       Authorization: `Bearer ${localStorage.getItem("token")}`,
-        //     },
-        //   }
-        // );
+      sendChatRequest = async(requestedNickname) => {
 
-        // if (response.data.isSuccess === false) {
-        //   alert("승인이 거절되었습니다.")
-        // }
-
-        const requestingSocketId = socket.id
-        socket.emit("requestChat", { requestingSocketId, userNickname })
+        socket.emit("requestChat", { userNickname ,requestedNickname })
         // 승인일 시 해당 유저가 속한 방 번호로 socket 입장하고 방 입장하기
       }
 
@@ -158,9 +144,10 @@
         });
 
         if (profileInfo.data.isExist === false) {
-          window.location.replace("/new_profile.html");
+          return window.location.replace("/new_profile.html");
         }
-         userNickname  = profileInfo.data.userNickname
+        console.log("해당 유저의 닉네임은 이것이다!", profileInfo.data.userNickname);
+         return profileInfo.data.userNickname
       };
 
       signOut = async () => {

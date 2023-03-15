@@ -148,9 +148,6 @@ const createUser = {
 
       await userRepository.save(user);
 
-      const savedUsers = await userRepository.find();
-      console.log("All users from the db: ", savedUsers);
-
       return res.status(201).json({
         isSuccess: true,
         msg: "회원가입에 성공하였습니다.",

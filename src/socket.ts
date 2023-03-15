@@ -7,7 +7,9 @@ const server = createServer(app);
 const userRepository = AppDataSource.getRepository(User);
 
 // 채팅방 리스트에 있는 유저
-const chatUserList: string[] = [];
+type ChatUserList = { userNickname: string; socketId: string };
+
+const chatUserList: ChatUserList[] = [];
 
 // 활용가능 인터페이스 설정 예시
 // interface ClientToServerEvents {
@@ -44,18 +46,34 @@ const io = new Server(server, {
 io.on("connection", (socket: Socket) => {
   console.log("서버측 socket.io 실행", socket.id);
 
-  chatUserList.push(socket.id);
-  console.log("chatUserList는 이것이다", chatUserList);
+  socket.on("sendNickname", (payload) => {
+    const { userNickname } = payload;
+    console.log("payload는 이것이다!", payload);
 
-  socket.on("logCheck", (msg) => {
-    console.log(`${msg}`, socket.rooms);
-    console.log(socket.id);
+    chatUserList.push({ userNickname, socketId: socket.id }); // 소켓연결 해제시 배열에서 자신을 찾아 지우는 코드도 구현 필요
+    console.log("chatUserList는 이것이다", chatUserList);
   });
 
   socket.on("requestChat", async (payload) => {
-    // requestingSocketId, requestedNickname
-    const { requestingSocketId } = payload;
+    // payload: requestingSocketId, userNickname ,requestedNickname
+
+    // 요청한 유저
     const requestingNickname = payload.userNickname;
+    // 요청받은 유저
+    const { requestedNickname } = payload;
+
+    let requestedUser: string;
+    let requestedUserSocket: string;
+
+    for (let i = 0; i < chatUserList.length; i++) {
+      if (chatUserList[i].userNickname === requestedNickname) {
+        requestedUser = chatUserList[i].userNickname;
+        requestedUserSocket = chatUserList[i].socketId;
+      }
+    }
+
+    console.log("requestedUser는 이거다!!!", requestedUser!);
+    console.log("requestedUserSocket는 이거다!!!", requestedUserSocket!);
 
     const requestingUser = await userRepository.findOne({
       where: {
@@ -70,23 +88,34 @@ io.on("connection", (socket: Socket) => {
     const { status_msg } = requestingUser!.profile;
     const { region } = requestingUser!.profile;
 
-    const requestedSocketId = socket.id;
+    const requestingSocketId = socket.id;
 
-    // 알람이 요청받은 사람에게 가지 않음, 페이로드도 제대로 가지 않음
-    io.to(requestedSocketId).emit("checkRequest", { 
-      birth_year,
-      gender,
-      status_msg,
-      region,
-      requestingSocketId,
-    });
+  /* 개선 전 */
+  // 서로에게 알람이 뜨기는 하지만 payload가 제대로 전달되지 않는다! => 원래 io.to().emit()을 사용하면 payload는 보낼 수 없나?
+  //   io.to(requestedUserSocket!).emit("checkRequest", {
+  //     birth_year,
+  //     gender,
+  //     status_msg,
+  //     region,
+  //     requestingSocketId,
+  //   });
+  // });
+
+    /* 개선 후 */
+    // 문법을 검색하면 다음의 형태처럼 문자열 메시지를 보낼 수 있는 듯 하다. io.to(socketID).emit('testEvent', 'yourMessage');
+    // 그래서 아래의 코드는 성공적으로 전달된다!
+    io.to(requestedUserSocket!).emit(
+      "checkRequest",
+      `${birth_year},${gender},${status_msg},${region},${requestingSocketId}`
+    );
   });
+
 
   let roomId: string;
   // let roomIdStr: string;
   socket.on("joinChat", (payload) => {
     roomId = payload.roomId;
-    console.log("roomId는 이것입니다!", roomId, "type:", typeof roomId);
+    // console.log("roomId는 이것입니다!", roomId, "type:", typeof roomId);
 
     // chattingUsers[roomId].push(socket.id);
 
@@ -106,7 +135,7 @@ io.on("connection", (socket: Socket) => {
 
   socket.on("disconnecting", (reason) => {
     console.log("disconnecting이 먼저 실행되고 있습니다.");
-    console.log("Reason은 이것입니다.", reason);
+    // console.log("Reason은 이것입니다.", reason);
 
     socket.leave(roomId);
     // console.log("chattingUsers리스트에 남은 목록입니다", chattingUsers);
