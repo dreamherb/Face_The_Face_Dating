@@ -107,15 +107,61 @@
         });
       };
 
+      acceptChatReq = async(reqUserNickname) => {
+        
+        alert("요청 승인 잘 작동합니다!")
+      }
+      denyChatReq = async(reqUserNickname) => {
+        
+        alert("요청 거절이 잘 작동됩니다!")
+        $("#chatReqModal").hide();
+      }
+
       sendChatRequest = async(requestedNickname) => {
 
         socket.emit("requestChat", { userNickname ,requestedNickname })
         // 승인일 시 해당 유저가 속한 방 번호로 socket 입장하고 방 입장하기
       }
 
+      // 대화 요청 받을 시 요청한 상대 프로필 수신
       socket.on("checkRequest", (payload) => {
-          alert(`상대방의 ${payload} 가 제대로 넘어옵니다!`)
+
+          const requestingUserInfo = payload.split(",")
+          const birth_year = requestingUserInfo[0]
+          const gender = requestingUserInfo[1]
+          const status_msg = requestingUserInfo[2]
+          const region = requestingUserInfo[3]
+          const requestingNickname = requestingUserInfo[4]
+          const requestingSocketId = requestingUserInfo[5]
+
+        // 정보를 받아와서 모달창으로 구현
+        
+        
+          let temp_html = `<div class="modal" tabindex="-1" role="dialog" id="chatReqModal">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">대화 요청, 승인하시겠습니까?</h5>
+              
+                
+              </button>
+            </div>
+            <div class="modal-body">
+              <p>${requestingNickname}/${birth_year}/${gender}/${region}/${status_msg}</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" onclick="acceptChatReq(${requestingNickname})">승인</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="denyChatReq(${requestingNickname})">거절</button>
+            </div>
+          </div>
+        </div>
+      </div>`
+
+        $('#chatReqSection').append(temp_html);
+        
+        $("#chatReqModal").show();
         })
+
 
       isRefreshedTime = async () => {
         const pageRefreshingMoment = new Date();
@@ -190,7 +236,8 @@
           </nav>
         </div>
       </div>
-
+      <!-- Chat Request Modal -->
+      <div id="chatReqSection"></div>
       <!-- 채팅 리스트 구현부 -->
       <div class="row row-cols-2" id="userList">
     </div>

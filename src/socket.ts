@@ -106,7 +106,7 @@ io.on("connection", (socket: Socket) => {
     // 그래서 아래의 코드는 성공적으로 전달된다!
     io.to(requestedUserSocket!).emit(
       "checkRequest",
-      `${birth_year},${gender},${status_msg},${region},${requestingSocketId}`
+      `${birth_year},${gender},${status_msg},${region},${requestingNickname},${requestingSocketId}`
     );
   });
 
