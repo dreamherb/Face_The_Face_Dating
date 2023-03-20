@@ -35,7 +35,7 @@ const read = {
         });
       }
 
-      requestedUser!.on_chat === 1;
+      requestedUser!.on_chat = 1;
       await userRepository.save(requestedUser!);
 
       return res.status(200).json({
@@ -63,7 +63,7 @@ const update = {
         });
       }
 
-      requestingUser!.on_chat === 1;
+      requestingUser!.on_chat = 1;
       await userRepository.save(requestingUser!);
 
       return res.status(200).json({

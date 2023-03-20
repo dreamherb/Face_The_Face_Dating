@@ -108,20 +108,17 @@ io.on("connection", (socket: Socket) => {
   });
 
   socket.on("alarmReqDenied", async (payload) => {
+    const arr = payload.split(",");
 
-    const arr =  payload.split(",")
-    
-    const  reqUserNickname = arr[0]
-    const  reqUserSocketId = arr[1]
-    const  requestedNickname = arr[2]
-
+    const reqUserNickname = arr[0];
+    const reqUserSocketId = arr[1];
+    const requestedNickname = arr[2];
 
     console.log("payload는 이것이다!!!", payload);
     console.log(reqUserNickname);
     console.log(reqUserSocketId);
     console.log(requestedNickname);
-    
-    
+
     // 요청 거절 시 요청한 유저와 요청받은 유저의 대화 중 여부를 대화요청으로 바꾸기
 
     const reqUser = await userRepository.findOne({
@@ -129,7 +126,7 @@ io.on("connection", (socket: Socket) => {
         nickname: reqUserNickname,
       },
     });
-    
+
     reqUser!.on_chat = 0;
     await userRepository.save(reqUser!);
 
@@ -170,7 +167,7 @@ io.on("connection", (socket: Socket) => {
     console.log(socket.rooms);
   });
 
-  socket.on("disconnecting", (reason) => {
+  socket.on("disconnecting", async (reason) => {
     console.log("disconnecting이 먼저 실행되고 있습니다.");
     // console.log("Reason은 이것입니다.", reason);
 
@@ -180,6 +177,24 @@ io.on("connection", (socket: Socket) => {
       "disconnecting할 때 leave 하면서 보여주는 room 리스트",
       socket.rooms
     );
+
+    // 요청받은 유저 혹은 요청한 유저가 갑자기 브라우저 종료 시 on_chat을 0으로 바꿔주기
+    let leavingNickname;
+    for (let i = 0; i < chatUserList.length; i++) {
+      if (chatUserList[i].socketId === socket.id) {
+        // requestedUser = chatUserList[i].userNickname;
+        leavingNickname = chatUserList[i].userNickname;
+      }
+    }
+
+    const leavingUser = await userRepository.findOne({
+      where: {
+        nickname: leavingNickname,
+      },
+    });
+    leavingUser!.on_chat = 0;
+
+    await userRepository.save(leavingUser!);
   });
 
   socket.on("disconnect", (reason) => {
