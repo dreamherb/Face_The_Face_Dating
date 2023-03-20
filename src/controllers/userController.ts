@@ -151,6 +151,17 @@ const read = {
       });
     }
   ),
+
+  tokenExpirationCheck: asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+    
+      return res.status(200).json({
+        isSuccess: true,
+      });
+    }
+  ),
+
+
 };
 
 const update = {

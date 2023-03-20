@@ -250,7 +250,7 @@
       };
 
       const checkTokenExpired = async () => {
-        const response = await axios.get("/api/token/expiration_check", {
+        const response = await axios.get("/api/user/token_expiration_check", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
