@@ -62,18 +62,15 @@ io.on("connection", (socket: Socket) => {
     // 요청받은 유저
     const { requestedNickname } = payload;
 
-    let requestedUser: string;
+    // let requestedUser: string;
     let requestedUserSocket: string;
 
     for (let i = 0; i < chatUserList.length; i++) {
       if (chatUserList[i].userNickname === requestedNickname) {
-        requestedUser = chatUserList[i].userNickname;
+        // requestedUser = chatUserList[i].userNickname;
         requestedUserSocket = chatUserList[i].socketId;
       }
     }
-
-    console.log("requestedUser는 이거다!!!", requestedUser!);
-    console.log("requestedUserSocket는 이거다!!!", requestedUserSocket!);
 
     const requestingUser = await userRepository.findOne({
       where: {
@@ -106,15 +103,45 @@ io.on("connection", (socket: Socket) => {
     // 그래서 아래의 코드는 성공적으로 전달된다!
     io.to(requestedUserSocket!).emit(
       "checkRequest",
-      `${birth_year},${gender},${status_msg},${region},${requestingNickname},${requestingSocketId}`
+      `${birth_year},${gender},${status_msg},${region},${requestingNickname},${requestingSocketId},${requestedNickname}`
     );
   });
 
-  socket.on("alarmReqDenied", (payload) => {
-    const { reqUserSocketId } = payload;
+  socket.on("alarmReqDenied", async (payload) => {
 
-    console.log("거절 알람 소켓까지는 도달했습니다!");
+    const arr =  payload.split(",")
     
+    const  reqUserNickname = arr[0]
+    const  reqUserSocketId = arr[1]
+    const  requestedNickname = arr[2]
+
+
+    console.log("payload는 이것이다!!!", payload);
+    console.log(reqUserNickname);
+    console.log(reqUserSocketId);
+    console.log(requestedNickname);
+    
+    
+    // 요청 거절 시 요청한 유저와 요청받은 유저의 대화 중 여부를 대화요청으로 바꾸기
+
+    const reqUser = await userRepository.findOne({
+      where: {
+        nickname: reqUserNickname,
+      },
+    });
+    
+    reqUser!.on_chat = 0;
+    await userRepository.save(reqUser!);
+
+    const requestedUser = await userRepository.findOne({
+      where: {
+        nickname: requestedNickname,
+      },
+    });
+
+    requestedUser!.on_chat = 0;
+    await userRepository.save(requestedUser!);
+
     io.to(reqUserSocketId!).emit(
       "getDenialAlarm",
       "대화 요청이 거절되었어요! 다음에 시도해보세요"

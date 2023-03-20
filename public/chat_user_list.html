@@ -61,7 +61,6 @@
         socket.on("connect", () => {
           console.log("chat user list 클라이언트 측 Socket 실행", socket.id);
         });
-        console.log("함수실행하고 나서 userNickname은 이것이다!", userNickname);
         socket.emit("sendNickname", { userNickname })
       });
       
@@ -110,14 +109,14 @@
         });
       };
 
-      const acceptChatReq = (reqUserSocketId) => {
+      const acceptChatReq = (reqUserNickname, reqUserSocketId, requestedNickname) => {
         
         alert("요청 승인 잘 작동합니다!")
       }
-      const denyChatReq = (reqUserSocketId) => {
+      const denyChatReq = (reqUserNickname, reqUserSocketId, requestedNickname) => {
 
-        socket.emit("alarmReqDenied", {reqUserSocketId})
-        alert("요청 거절이 잘 작동됩니다!")
+        socket.emit("alarmReqDenied", reqUserNickname, reqUserSocketId, requestedNickname)
+        alert("요청 거절이 완료되었습니다.")
         $("#chatReqModal").hide();
       }
 
@@ -170,9 +169,9 @@
           const region = requestingUserInfo[3]
           const requestingNickname = requestingUserInfo[4]
           const requestingSocketId = requestingUserInfo[5]
+          const requestedNickname = requestingUserInfo[6]
 
         // 정보를 받아와서 모달창으로 구현
-        
         
           let temp_html = `<div class="modal" tabindex="-1" role="dialog" id="chatReqModal">
         <div class="modal-dialog" role="document">
@@ -187,15 +186,14 @@
               <p>${requestingNickname}/${birth_year}/${gender}/${region}/${status_msg}</p>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-primary" onclick="acceptChatReq(${requestingSocketId})">승인</button>
-              <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="denyChatReq(${requestingSocketId})">거절</button>
+              <button type="button" class="btn btn-primary" onclick="acceptChatReq('${requestingNickname},${requestingSocketId},${requestedNickname}')">승인</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="denyChatReq('${requestingNickname},${requestingSocketId},${requestedNickname}')">거절</button>
             </div>
           </div>
         </div>
       </div>`
 
         $('#chatReqSection').append(temp_html);
-        
         $("#chatReqModal").show();
         })
 
@@ -233,7 +231,6 @@
         if (profileInfo.data.isExist === false) {
           return window.location.replace("/new_profile.html");
         }
-        console.log("해당 유저의 닉네임은 이것이다!", profileInfo.data.userNickname);
          return profileInfo.data.userNickname
       };
 
@@ -294,6 +291,7 @@
       </div>
       <!-- Chat Request Modal -->
       <div id="chatReqSection"></div>
+      
       <!-- 채팅 리스트 구현부 -->
       <div class="row row-cols-2" id="userList">
     </div>
