@@ -35,12 +35,14 @@
           return window.location.replace("/");
         }
 
+        checkTokenExpired();
+
         alert(
           "사용하기 전 프로필 사진, 성별, 출생연도, 위치를 설정해주세요 :)"
         );
       });
 
-      saveProfile = async () => {
+      const saveProfile = async () => {
         const gender = $(`#inputGender option:selected`).val();
         const region = $(`#inputRegion option:selected`).val();
         const birthYear = $(`#inputBirthYear`).val();
@@ -75,6 +77,21 @@
         alert(response.data.msg);
         window.location.replace("/chat_user_list.html");
       };
+
+      const checkTokenExpired = async () => {
+        const response = await axios.get("/api/token/expiration_check", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        if(response.data.needSignOut) {
+        
+        localStorage.clear();
+        alert("로그인 정보가 만료되었습니다. 로그아웃 후 재접속이 필요합니다.");
+        return window.location.replace = "/";
+        }
+      }
     </script>
   </head>
   <body>

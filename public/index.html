@@ -35,6 +35,8 @@
           alert("이미 로그인이 되어있습니다.");
           window.location.replace("/chat_user_list.html");
         }
+
+        checkTokenExpired();
       });
 
       window.onload = logInByEnter = () => {
@@ -45,7 +47,7 @@
         });
       };
 
-      logIn = async () => {
+      const logIn = async () => {
         const email = document.getElementById("inputEmail").value;
         const pwd = document.getElementById("inputPassword").value;
 
@@ -69,11 +71,25 @@
         });
 
         if (getProfile.data.isExist === false) {
-          console.log("프로필이 존재하지 않으니 작성하러 이동하세욧!!!");
           return window.location.replace("/new_profile.html");
         }
         window.location.replace("/chat_user_list.html");
       };
+
+      const checkTokenExpired = async () => {
+        const response = await axios.get("/api/token/expiration_check", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        if(response.data.needSignOut) {
+        
+        localStorage.clear();
+        alert("로그인 정보가 만료되었습니다. 로그아웃 후 재접속이 필요합니다.");
+        return window.location.replace = "/";
+        }
+      }
     </script>
   </head>
   <body>

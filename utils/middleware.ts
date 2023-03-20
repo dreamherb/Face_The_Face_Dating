@@ -48,6 +48,7 @@ const auth = {
         return res.json({
           isSuccess: false,
           msg: "유효한 값의 토큰이 아닙니다.",
+          needSignOut: true,
         });
       }
 

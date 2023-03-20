@@ -46,6 +46,9 @@
           alert("로그인 후 아용 가능합니다.");
           return window.location.replace("/");
         }
+
+        checkTokenExpired();
+
          // 이렇게 해주지 않으면 promise가 반환된다. 함수 자체가 비동기처리를 한 함수이기에 똑같이 비동기를 처리해 동기로 바꿔주었다.
         userNickname = await isProfileExist();
 
@@ -63,7 +66,7 @@
       });
       
 
-      getUserList = async () => {
+      const getUserList = async () => {
         const response = await axios.get("/api/user/user_list", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -107,20 +110,54 @@
         });
       };
 
-      acceptChatReq = async(reqUserNickname) => {
+      const acceptChatReq = (reqUserSocketId) => {
         
         alert("요청 승인 잘 작동합니다!")
       }
-      denyChatReq = async(reqUserNickname) => {
-        
+      const denyChatReq = (reqUserSocketId) => {
+
+        socket.emit("alarmReqDenied", {reqUserSocketId})
         alert("요청 거절이 잘 작동됩니다!")
         $("#chatReqModal").hide();
       }
 
-      sendChatRequest = async(requestedNickname) => {
+      const sendChatRequest = async(requestedNickname) => {
 
+        // 대화 요청 전 대화 요청하는 유저가 다른 요청을 받을 수 없도록 대화 중으로 바꿔주기
+        const changeOnChat = await axios.get(
+          "/api/chat/req_user_on_chat",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        if(changeOnChat.data.isSuccess === false) {
+          return alert(changeOnChat.data.msg);
+        }
+
+        const response = await axios.patch(
+          "/api/chat/on_chat_check",
+          {
+            requestedNickname,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        if(response.data.isSuccess === false) {
+          return alert(response.data.msg);
+        }
+
+        // on_chat여부에 따라 아래 socket 코드 실행여부 결정
+        
         socket.emit("requestChat", { userNickname ,requestedNickname })
+
         // 승인일 시 해당 유저가 속한 방 번호로 socket 입장하고 방 입장하기
+        
       }
 
       // 대화 요청 받을 시 요청한 상대 프로필 수신
@@ -150,8 +187,8 @@
               <p>${requestingNickname}/${birth_year}/${gender}/${region}/${status_msg}</p>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-primary" onclick="acceptChatReq(${requestingNickname})">승인</button>
-              <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="denyChatReq(${requestingNickname})">거절</button>
+              <button type="button" class="btn btn-primary" onclick="acceptChatReq(${requestingSocketId})">승인</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="denyChatReq(${requestingSocketId})">거절</button>
             </div>
           </div>
         </div>
@@ -162,8 +199,12 @@
         $("#chatReqModal").show();
         })
 
+        // 대화요청 거절 후 알람 수신
+        socket.on("getDenialAlarm", (payload) => {
+          alert(payload)
+        })
 
-      isRefreshedTime = async () => {
+      const isRefreshedTime = async () => {
         const pageRefreshingMoment = new Date();
         const response = await axios.patch(
           "/api/user/refreshed_timeLog",
@@ -182,7 +223,7 @@
         }
       };
 
-      isProfileExist = async () => {
+      const isProfileExist = async () => {
         const profileInfo = await axios.get("/api/user/profile", {
           headers: {
             authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -196,7 +237,7 @@
          return profileInfo.data.userNickname
       };
 
-      signOut = async () => {
+      const signOut = async () => {
         const response = await axios.get("/api/auth/logout", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -207,6 +248,21 @@
         alert("로그아웃 처리되었습니다!");
         window.location.href = "/";
       };
+
+      const checkTokenExpired = async () => {
+        const response = await axios.get("/api/token/expiration_check", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        if(response.data.needSignOut) {
+        
+        localStorage.clear();
+        alert("로그인 정보가 만료되었습니다. 로그아웃 후 재접속이 필요합니다.");
+        return window.location.replace = "/";
+        }
+      }
     </script>
   </head>
   <body>

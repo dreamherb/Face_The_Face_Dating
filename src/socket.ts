@@ -90,16 +90,16 @@ io.on("connection", (socket: Socket) => {
 
     const requestingSocketId = socket.id;
 
-  /* 개선 전 */
-  // 서로에게 알람이 뜨기는 하지만 payload가 제대로 전달되지 않는다! => 원래 io.to().emit()을 사용하면 payload는 보낼 수 없나?
-  //   io.to(requestedUserSocket!).emit("checkRequest", {
-  //     birth_year,
-  //     gender,
-  //     status_msg,
-  //     region,
-  //     requestingSocketId,
-  //   });
-  // });
+    /* 개선 전 */
+    // 서로에게 알람이 뜨기는 하지만 payload가 제대로 전달되지 않는다! => 원래 io.to().emit()을 사용하면 payload는 보낼 수 없나?
+    //   io.to(requestedUserSocket!).emit("checkRequest", {
+    //     birth_year,
+    //     gender,
+    //     status_msg,
+    //     region,
+    //     requestingSocketId,
+    //   });
+    // });
 
     /* 개선 후 */
     // 문법을 검색하면 다음의 형태처럼 문자열 메시지를 보낼 수 있는 듯 하다. io.to(socketID).emit('testEvent', 'yourMessage');
@@ -110,6 +110,16 @@ io.on("connection", (socket: Socket) => {
     );
   });
 
+  socket.on("alarmReqDenied", (payload) => {
+    const { reqUserSocketId } = payload;
+
+    console.log("거절 알람 소켓까지는 도달했습니다!");
+    
+    io.to(reqUserSocketId!).emit(
+      "getDenialAlarm",
+      "대화 요청이 거절되었어요! 다음에 시도해보세요"
+    );
+  });
 
   let roomId: string;
   // let roomIdStr: string;
