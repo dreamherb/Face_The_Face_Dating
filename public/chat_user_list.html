@@ -40,12 +40,15 @@
 
       // 현재 사용자 닉네임
       let userNickname;
+      // 대화 요청 받은 유저 모달 창 버튼 클릭 여부
+      let modalBtnClicked = false;
 
     $(document).ready( async() => {
         if (!localStorage.getItem("token")) {
           alert("로그인 후 아용 가능합니다.");
           return window.location.replace("/");
         }
+        modalBtnClicked = false;
 
         checkTokenExpired();
 
@@ -110,11 +113,12 @@
       };
 
       const acceptChatReq = (reqUserNickname, reqUserSocketId, requestedNickname) => {
-        
+        modalBtnClicked = true;
         alert("요청 승인 잘 작동합니다!")
       }
       const denyChatReq = (reqUserNickname, reqUserSocketId, requestedNickname) => {
 
+        modalBtnClicked = true;
         socket.emit("alarmReqDenied", reqUserNickname, reqUserSocketId, requestedNickname)
         alert("요청 거절이 완료되었습니다.")
         $("#chatReqModal").hide();
@@ -155,6 +159,8 @@
         
         socket.emit("requestChat", { userNickname ,requestedNickname })
 
+        modalBtnClicked = false;
+
         // 승인일 시 해당 유저가 속한 방 번호로 socket 입장하고 방 입장하기
         
       }
@@ -177,9 +183,7 @@
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">대화 요청, 승인하시겠습니까?</h5>
-              
-                
+              <h5 class="modal-title">대화 요청, 승인하시겠습니까? (응답없이 20초 경과 시 자동으로 거절처리됩니다.)</h5>
               </button>
             </div>
             <div class="modal-body">
@@ -195,7 +199,25 @@
 
         $('#chatReqSection').append(temp_html);
         $("#chatReqModal").show();
+
+        // setInterval(() => {}, 1000)로 매초마다 점검하는 것, 모달창 승인/거절 버튼 누르지않고 20초 경과 시 자동으로 거절 처리
+        let count = 0
+        const intervalID = setInterval(() => {
+
+          count++;
+
+          if(modalBtnClicked === true) {
+            modalBtnClicked = false;
+            clearInterval(intervalID)
+          }
+          if(count === 20) {
+            denyChatReq(`${requestingNickname},${requestingSocketId},${requestedNickname}`)
+            modalBtnClicked = false;
+            clearInterval(intervalID)
+          }
+        }, 1000)
         })
+        
 
         // 대화요청 거절 후 알람 수신
         socket.on("getDenialAlarm", (payload) => {
