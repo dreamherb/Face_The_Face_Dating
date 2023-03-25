@@ -1,10 +1,14 @@
 import { app } from "./app";
 import { User } from "./models/entity/User";
+import { ChatRoom } from "./models/entity/ChatRoom";
 import { AppDataSource } from "./models/data-source";
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 const server = createServer(app);
 const userRepository = AppDataSource.getRepository(User);
+const chatRoomRepository = AppDataSource.getRepository(ChatRoom);
+let roomId: number;
+let roomIdStr: string;
 
 // 채팅방 리스트에 있는 유저
 type ChatUserList = { userNickname: string; socketId: string };
@@ -145,10 +149,34 @@ io.on("connection", (socket: Socket) => {
     );
   });
 
-  let roomId: string;
-  // let roomIdStr: string;
-  socket.on("joinChat", (payload) => {
-    roomId = payload.roomId;
+  // 대화 요청 승인 시 상대방도 요청한 사람도 대화방에 보내도록 하기
+  socket.on("acceptChatRep", async (payload) => {
+    const arr = payload.split(",");
+
+    const reqUserNickname = arr[0];
+    const reqUserSocketId = arr[1];
+    const requestedNickname = arr[2];
+
+    console.log("payload는 이것이다!!!", payload);
+    console.log(reqUserNickname);
+    console.log(reqUserSocketId);
+    console.log(requestedNickname);
+
+    io.to(reqUserSocketId!).emit(
+      "getAcceptedAlarm",
+      "대화 요청이 승인되었습니다!"
+    );
+  });
+
+   // 둘의 대화를 위한 새로운 방 생성 후 방에 입장
+
+   socket.on("joinChat", () => {
+    const chatRoom = new ChatRoom();
+
+    roomId = chatRoom.id;
+    
+
+    // roomId = payload.roomId;
     // console.log("roomId는 이것입니다!", roomId, "type:", typeof roomId);
 
     // chattingUsers[roomId].push(socket.id);
@@ -161,8 +189,8 @@ io.on("connection", (socket: Socket) => {
     //   chattingUsers[roomId] = [socket.id];
     // }
 
-    // // roomIdStr = roomId.toString();
-    socket.join(roomId);
+    roomIdStr = roomId.toString();
+    socket.join(roomIdStr);
     // console.log("유저가 join에 성공하였습니다! chattingUsers 리스트는 이겁니다", chattingUsers);
     console.log(socket.rooms);
   });
@@ -171,7 +199,7 @@ io.on("connection", (socket: Socket) => {
     console.log("disconnecting이 먼저 실행되고 있습니다.");
     // console.log("Reason은 이것입니다.", reason);
 
-    socket.leave(roomId);
+    socket.leave(roomIdStr);
     // console.log("chattingUsers리스트에 남은 목록입니다", chattingUsers);
     console.log(
       "disconnecting할 때 leave 하면서 보여주는 room 리스트",

@@ -35,22 +35,26 @@ const auth = {
         });
       }
 
-      const { email } = jwt.verify(
-        value,
-        process.env.JWT_SECRET_KEY!
-      ) as JwtPayload;
+      // 토큰이 만료되었을 경우 asyncWrapper가 아닌 별도로 에러 처리를 해주어 재로그인 하게 함
+      let email;
+      try {
+        const decodedValue = jwt.verify(
+          value,
+          process.env.JWT_SECRET_KEY!
+        ) as JwtPayload;
 
-      const user = await userRepository.findOneBy({
-        email,
-      });
-
-      if (!user) {
+        email = decodedValue.email;
+      } catch (error) {
         return res.json({
           isSuccess: false,
           msg: "유효한 값의 토큰이 아닙니다.",
           needSignOut: true,
         });
       }
+
+      const user = await userRepository.findOneBy({
+        email,
+      });
 
       res.locals.user = user;
       next();
