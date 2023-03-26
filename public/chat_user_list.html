@@ -56,15 +56,27 @@
         userNickname = await isProfileExist();
 
         // 유저 새로고침 시 시간 기록
-        isRefreshedTime();
+        updateRefreshedTime();
+
+        // loginStatus = 1
+        socket.emit("setUserSignedIn", { userNickname })
 
         // 접속해있는 채팅 유저 리스트 가져오기
         getUserList();
 
-        socket.on("connect", () => {
-          console.log("chat user list 클라이언트 측 Socket 실행", socket.id);
-        });
+        // 필수는 아님, 이벤트 핸들러를 직접 이 구문안에 쓰면 안되지만 연결 시 뭔가 하고싶다면 넣어도 좋음
+        // socket.on("connect", () => {
+        //   console.log("chat user list 클라이언트 측 Socket 실행", socket.id);
+        // });
         socket.emit("sendNickname", { userNickname })
+
+        const TOKEN_EXPIRATION_CHECKING_TIME = 60 * 60 * 3 * 1000 // 3시간
+
+        // 토큰이 만료될 때 까지 아무 활동도 하지않는 유저를 리스트에서 지우기
+        const setTimeOutId = setTimeout(() => {
+        clearTimeout(setTimeOutId);
+        location.reload();
+        }, TOKEN_EXPIRATION_CHECKING_TIME);
       });
       
 
@@ -234,7 +246,7 @@
           alert(payload)
         })
 
-      const isRefreshedTime = async () => {
+      const updateRefreshedTime = async () => {
         const pageRefreshingMoment = new Date();
         const response = await axios.patch(
           "/api/user/refreshed_timeLog",
@@ -286,6 +298,13 @@
         });
 
         if(response.data.needSignOut) {
+
+          // 토큰 만료로 인한 로그아웃 처리 시에도 loginStatus를 0으로 만들어주어야 유저리스트에 남지 않음
+          await axios.get("/api/auth/logout", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
         
         localStorage.clear();
         alert("로그인 정보가 만료되었습니다. 로그아웃 후 재접속이 필요합니다.");
