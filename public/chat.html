@@ -75,6 +75,13 @@
         });
 
         if(response.data.needSignOut) {
+
+            // 토큰 만료로 인한 로그아웃 처리 시에도 loginStatus를 0으로 만들어주어야 유저리스트에 남지 않음
+            await axios.get("/api/auth/logout", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
         
         localStorage.clear();
         alert("로그인 정보가 만료되었습니다. 로그아웃 후 재접속이 필요합니다.");
