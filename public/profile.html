@@ -186,7 +186,7 @@
         console.log(statusMsg, "statusMsg은 이거다");
 
         const response = await axios.patch(
-          "/api/user/profile_update",
+          "/api/user/profile-update",
           {
             gender,
             region,
@@ -214,7 +214,7 @@
       };
 
       const checkTokenExpired = async () => {
-        const response = await axios.get("/api/user/token_expiration_check", {
+        const response = await axios.get("/api/user/token-expiration-check", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -246,7 +246,7 @@
                 <button
                   class="btn btn-primary"
                   type="button"
-                  onclick="window.location.href = '/chat_user_list.html'"
+                  onclick="window.location.href = '/chat-user-list.html'"
                 >
                   방 리스트로 이동
                 </button>

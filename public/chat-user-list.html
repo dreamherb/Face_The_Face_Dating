@@ -81,7 +81,7 @@
       
 
       const getUserList = async () => {
-        const response = await axios.get("/api/user/user_list", {
+        const response = await axios.get("/api/user/user-list", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -162,7 +162,7 @@
         }
 
         const response = await axios.patch(
-          "/api/chat/on_chat_check",
+          "/api/chat/on-chat-check",
           {
             requestedNickname,
           },
@@ -249,7 +249,7 @@
       const updateRefreshedTime = async () => {
         const pageRefreshingMoment = new Date();
         const response = await axios.patch(
-          "/api/user/refreshed_timeLog",
+          "/api/user/refreshed-timeLog",
           {
             pageRefreshingMoment,
           },
@@ -273,7 +273,7 @@
         });
 
         if (profileInfo.data.isExist === false) {
-          return window.location.replace("/new_profile.html");
+          return window.location.replace("/new-profile.html");
         }
          return profileInfo.data.userNickname
       };
@@ -291,7 +291,7 @@
       };
 
       const checkTokenExpired = async () => {
-        const response = await axios.get("/api/user/token_expiration_check", {
+        const response = await axios.get("/api/user/token-expiration-check", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

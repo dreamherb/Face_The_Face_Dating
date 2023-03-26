@@ -34,7 +34,7 @@
         if (localStorage.getItem("token")) {
           checkTokenExpired();
           alert("이미 로그인이 되어있습니다.");
-          window.location.replace("/chat_user_list.html");
+          window.location.replace("/chat-user-list.html");
         }
 
         
@@ -72,13 +72,13 @@
         });
 
         if (getProfile.data.isExist === false) {
-          return window.location.replace("/new_profile.html");
+          return window.location.replace("/new-profile.html");
         }
-        window.location.replace("/chat_user_list.html");
+        window.location.replace("/chat-user-list.html");
       };
 
       const checkTokenExpired = async () => {
-        const response = await axios.get("/api/user/token_expiration_check", {
+        const response = await axios.get("/api/user/token-expiration-check", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -137,7 +137,7 @@
               <button
                 type="button"
                 class="btn btn-primary btn-lg"
-                onclick="location.href='/sign_up.html'"
+                onclick="location.href='/sign-up.html'"
               >
                 회원가입
               </button>

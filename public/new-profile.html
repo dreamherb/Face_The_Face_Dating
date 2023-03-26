@@ -58,7 +58,7 @@
         console.log(birthYear, "birthyear은 이거다");
         console.log(statusMsg, "statusMsg은 이거다");
 
-        const response = await axios.post("/api/user/new_profile",{
+        const response = await axios.post("/api/user/new-profile",{
             gender,
             region,
             birthYear,
@@ -75,11 +75,11 @@
           return alert(response.data.msg);
         }
         alert(response.data.msg);
-        window.location.replace("/chat_user_list.html");
+        window.location.replace("/chat-user-list.html");
       };
 
       const checkTokenExpired = async () => {
-        const response = await axios.get("/api/user/token_expiration_check", {
+        const response = await axios.get("/api/user/token-expiration-check", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

@@ -64,11 +64,11 @@
         // 연결 종료 처리
         socket.disconnect();
         //챗 리스트로 이동
-        window.location.replace("/chat_user_list.html");
+        window.location.replace("/chat-user-list.html");
       };
 
       const checkTokenExpired = async () => {
-        const response = await axios.get("/api/user/token_expiration_check", {
+        const response = await axios.get("/api/user/token-expiration-check", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
