@@ -119,10 +119,10 @@
         socket.emit("acceptChatRep", reqUserNickname, reqUserSocketId, requestedNickname)
         alert("요청 승인 잘 작동합니다!")
         $("#chatReqModal").hide();
-        socket.on("getAcceptedAlarm", () => {
-          // 이곳에 요청 보낸 이에게 socket으로 채팅방에 입장하게 하는 코드 구성
+        // socket.on("getAcceptedAlarm", () => {
+        //   // 이곳에 요청 보낸 이에게 socket으로 채팅방에 입장하게 하는 코드 구성
 
-        })
+        // })
         return window.location.replace("/chat.html");
       }
       const denyChatReq = (reqUserNickname, reqUserSocketId, requestedNickname) => {
@@ -285,14 +285,11 @@
           },
         });
 
-        console.log(response.data);
-        alert(response.data.msg)
-        console.log("response.data.needSignOut은 이렇게 생겼다", response.data.needSignOut);
         if(response.data.needSignOut) {
         
         localStorage.clear();
         alert("로그인 정보가 만료되었습니다. 로그아웃 후 재접속이 필요합니다.");
-        return window.location.replace("/index.html");
+        window.location.replace("/");
         }
       }
     </script>

@@ -32,11 +32,12 @@
     <script>
       $(document).ready(function () {
         if (localStorage.getItem("token")) {
+          checkTokenExpired();
           alert("이미 로그인이 되어있습니다.");
           window.location.replace("/chat_user_list.html");
         }
 
-        checkTokenExpired();
+        
       });
 
       window.onload = logInByEnter = () => {
@@ -87,7 +88,7 @@
         
         localStorage.clear();
         alert("로그인 정보가 만료되었습니다. 로그아웃 후 재접속이 필요합니다.");
-        return window.location.replace = "/";
+        window.location.replace = "/";
         }
       }
     </script>

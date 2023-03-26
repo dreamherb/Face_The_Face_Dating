@@ -23,4 +23,4 @@ router.get("/user/user_list", middleware.auth.tokenConfirmation, UserController.
 
 // /api/chat
 router.get("/chat/req_user_on_chat",middleware.auth.tokenConfirmation ,ChatController.update.onChat); // 요청하는 유저 대화 중으로 변경
-router.patch("/chat/on_chat_check",middleware.auth.tokenConfirmation ,ChatController.read.onChat); // 요청받는 유저 대화 중 여부 검사
+router.patch("/chat/on_chat_check",middleware.auth.tokenConfirmation ,ChatController.read.onChat); // 요청받는 유저 로그인 및 대화 중 여부 검사

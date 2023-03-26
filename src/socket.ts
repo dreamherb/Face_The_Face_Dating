@@ -54,7 +54,7 @@ io.on("connection", (socket: Socket) => {
     const { userNickname } = payload;
     console.log("payload는 이것이다!", payload);
 
-    chatUserList.push({ userNickname, socketId: socket.id }); // 소켓연결 해제시 배열에서 자신을 찾아 지우는 코드도 구현 필요
+    chatUserList.push({ userNickname, socketId: socket.id });
     console.log("chatUserList는 이것이다", chatUserList);
   });
 
@@ -157,10 +157,9 @@ io.on("connection", (socket: Socket) => {
     const reqUserSocketId = arr[1];
     const requestedNickname = arr[2];
 
-    console.log("payload는 이것이다!!!", payload);
-    console.log(reqUserNickname);
-    console.log(reqUserSocketId);
-    console.log(requestedNickname);
+    // 승인 시 방을 생성하고 해당 방에 둘을 넣어줘야 함, 똑같은 chat.html이어도 연결된 유저끼리만 나오도록 하기
+
+
 
     io.to(reqUserSocketId!).emit(
       "getAcceptedAlarm",
@@ -210,8 +209,10 @@ io.on("connection", (socket: Socket) => {
     let leavingNickname;
     for (let i = 0; i < chatUserList.length; i++) {
       if (chatUserList[i].socketId === socket.id) {
-        // requestedUser = chatUserList[i].userNickname;
+        
         leavingNickname = chatUserList[i].userNickname;
+        // 소켓연결 해제 시 배열에서 자신을 지움
+        chatUserList.splice(i,1)
       }
     }
 
@@ -223,6 +224,7 @@ io.on("connection", (socket: Socket) => {
     leavingUser!.on_chat = 0;
 
     await userRepository.save(leavingUser!);
+
   });
 
   socket.on("disconnect", (reason) => {

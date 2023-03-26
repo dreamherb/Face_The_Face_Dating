@@ -45,14 +45,13 @@
         }
 
         checkTokenExpired();
-        // socket.on("connect", () => {
-        //   console.log("클라이언트 측 Socket 실행", socket.id);
-        // });
-
-        // const userSocketId = socket.id;
-
+        socket.on("connect", () => {
+          console.log("Chat Room Socket 실행", socket.id);
+        });
         socket.emit("joinChat", {});
         socket.emit("logCheck", "챗방에 들어오고 나서 아이디입니다.")
+
+        
       });
 
       socket.on("disconnect", (reason) => {
@@ -79,7 +78,7 @@
         
         localStorage.clear();
         alert("로그인 정보가 만료되었습니다. 로그아웃 후 재접속이 필요합니다.");
-        return window.location.replace = "/";
+        window.location.replace = "/";
         }
       }
     </script>
