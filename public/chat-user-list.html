@@ -59,7 +59,8 @@
         updateRefreshedTime();
 
         // loginStatus = 1
-        socket.emit("setUserSignedIn", { userNickname })
+        // socket.emit("setUserSignedIn", { userNickname })
+        setUserSignedIn();
 
         // 접속해있는 채팅 유저 리스트 가져오기
         getUserList();
@@ -78,6 +79,21 @@
         location.reload();
         }, TOKEN_EXPIRATION_CHECKING_TIME);
       });
+      
+      // loginStatus = 1
+      const setUserSignedIn = async () => {
+        // socket.emit("setUserSignedIn", { userNickname })
+        const response = await axios.patch(
+          "/api/user/login-status-update",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+      }
       
 
       const getUserList = async () => {
@@ -149,7 +165,7 @@
 
         // 대화 요청 전 대화 요청하는 유저가 다른 요청을 받을 수 없도록 대화 중으로 바꿔주기
         const changeOnChat = await axios.get(
-          "/api/chat/req_user_on_chat",
+          "/api/chat/req-user-on-chat",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -299,6 +315,7 @@
 
         if(response.data.needSignOut) {
 
+          console.log("토큰이 만료되어 needSignOut이 작동한다");
           // 토큰 만료로 인한 로그아웃 처리 시에도 loginStatus를 0으로 만들어주어야 유저리스트에 남지 않음
           await axios.get("/api/auth/logout", {
           headers: {

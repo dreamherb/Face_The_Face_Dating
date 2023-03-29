@@ -50,18 +50,20 @@ const io = new Server(server, {
 io.on("connection", (socket: Socket) => {
   console.log("서버측 socket.io 실행", socket.id);
 
-  socket.on("setUserSignedIn", async (payload) => {
-    const { userNickname } = payload;
-    const user = await userRepository.findOne({
-      where: {
-        nickname: userNickname,
-      },
-    });
+  // socket.on("setUserSignedIn", async (payload) => {
+  //   const { userNickname } = payload;
+  //     console.log("setUserSignedIn에 도달한다");
 
-    user!.loginStatus = 1;
+  //   const user = await userRepository.findOne({
+  //     where: {
+  //       nickname: userNickname,
+  //     },
+  //   });
 
-    await userRepository.save(user!);
-  });
+  //   user!.loginStatus = 1;
+
+  //   await userRepository.save(user!);
+  // });
 
   socket.on("sendNickname", (payload) => {
     const { userNickname } = payload;
@@ -205,11 +207,7 @@ io.on("connection", (socket: Socket) => {
   });
 
   socket.on("disconnecting", async (reason) => {
-    console.log("disconnecting이 먼저 실행되고 있습니다.");
-    // console.log("Reason은 이것입니다.", reason);
-
     socket.leave(roomIdStr);
-    // console.log("chattingUsers리스트에 남은 목록입니다", chattingUsers);
     console.log(
       "disconnecting할 때 leave 하면서 보여주는 room 리스트",
       socket.rooms
@@ -225,18 +223,18 @@ io.on("connection", (socket: Socket) => {
       }
     }
 
-    const leavingUser = await userRepository.findOne({
-      where: {
-        nickname: leavingNickname,
-      },
-    });
+    if (leavingNickname) {
+      const leavingUser = await userRepository.findOne({
+        where: {
+          nickname: leavingNickname,
+        },
+      });
 
-    console.log("서버 단의 leavingUser부분이 작동합니다!");
+      leavingUser!.on_chat = 0;
+      leavingUser!.loginStatus = 0;
 
-    leavingUser!.on_chat = 0;
-    leavingUser!.loginStatus = 0;
-
-    await userRepository.save(leavingUser!);
+      await userRepository.save(leavingUser!);
+    }
   });
 
   socket.on("disconnect", (reason) => {

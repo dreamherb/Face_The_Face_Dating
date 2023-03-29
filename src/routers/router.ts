@@ -19,6 +19,7 @@ router.post("/user/new-profile",middleware.auth.tokenConfirmation, UserControlle
 router.patch("/user/profile-update",middleware.auth.tokenConfirmation, UserController.update.profile ) // 프로필 수정
 router.patch("/user/refreshed-timeLog", middleware.auth.tokenConfirmation, UserController.update.pageRefreshedTime) // 채팅리스트 새로고침 시간 업데이트
 router.get("/user/user-list", middleware.auth.tokenConfirmation, UserController.read.userList) // 접속한 유저 리스트 가져오기
+router.patch("/user/login-status-update",middleware.auth.tokenConfirmation, UserController.update.loginStatus ) // 로그인 상태로 변경
 
 
 // /api/chat

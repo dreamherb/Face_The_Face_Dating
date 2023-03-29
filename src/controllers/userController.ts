@@ -218,6 +218,23 @@ const update = {
       });
     }
   ),
+
+  loginStatus: asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { user } = res.locals;
+
+      const targetUser = await userRepository.findOneBy({
+        user_no: user.user_no,
+      });
+
+      targetUser!.loginStatus = 1;
+      await userRepository.save(targetUser!);
+
+      return res.json({
+        isSuccess: true,
+      });
+    }
+  ),
 };
 
 export { read, create, update };
