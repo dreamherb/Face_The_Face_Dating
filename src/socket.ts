@@ -12,8 +12,10 @@ let roomIdStr: string;
 
 // 채팅방 리스트에 있는 유저
 type ChatUserList = { userNickname: string; socketId: string };
+type ChatRoomList = { roomId: string ; userNickname: string; socketId: string };
 
 const chatUserList: ChatUserList[] = [];
+const chatRoomList: ChatRoomList[] = [];
 
 // 활용가능 인터페이스 설정 예시
 // interface ClientToServerEvents {
@@ -49,21 +51,6 @@ const io = new Server(server, {
 
 io.on("connection", (socket: Socket) => {
   console.log("서버측 socket.io 실행", socket.id);
-
-  // socket.on("setUserSignedIn", async (payload) => {
-  //   const { userNickname } = payload;
-  //     console.log("setUserSignedIn에 도달한다");
-
-  //   const user = await userRepository.findOne({
-  //     where: {
-  //       nickname: userNickname,
-  //     },
-  //   });
-
-  //   user!.loginStatus = 1;
-
-  //   await userRepository.save(user!);
-  // });
 
   socket.on("sendNickname", (payload) => {
     const { userNickname } = payload;
@@ -106,20 +93,6 @@ io.on("connection", (socket: Socket) => {
 
     const requestingSocketId = socket.id;
 
-    /* 개선 전 */
-    // 서로에게 알람이 뜨기는 하지만 payload가 제대로 전달되지 않는다! => 원래 io.to().emit()을 사용하면 payload는 보낼 수 없나?
-    //   io.to(requestedUserSocket!).emit("checkRequest", {
-    //     birth_year,
-    //     gender,
-    //     status_msg,
-    //     region,
-    //     requestingSocketId,
-    //   });
-    // });
-
-    /* 개선 후 */
-    // 문법을 검색하면 다음의 형태처럼 문자열 메시지를 보낼 수 있는 듯 하다. io.to(socketID).emit('testEvent', 'yourMessage');
-    // 그래서 아래의 코드는 성공적으로 전달된다!
     io.to(requestedUserSocket!).emit(
       "checkRequest",
       `${birth_year},${gender},${status_msg},${region},${requestingNickname},${requestingSocketId},${requestedNickname}`
@@ -174,6 +147,27 @@ io.on("connection", (socket: Socket) => {
 
     // 승인 시 방을 생성하고 해당 방에 둘을 넣어줘야 함, 똑같은 chat.html이어도 연결된 유저끼리만 나오도록 하기
 
+    // DB 상 ChatRoom 테이블 생성, 해당 유저 정보 넣기
+    const requestingUser = await userRepository.findOne({
+      where: {
+        nickname: reqUserNickname,
+      },
+    });
+
+    const requestedUser = await userRepository.findOne({
+      where: {
+        nickname: requestedNickname,
+      },
+    });
+
+    const chatRoom = new ChatRoom();
+
+    requestingUser!.chatRoom = chatRoom;
+    requestedUser!.chatRoom = chatRoom;
+
+    await userRepository.save(requestingUser!);
+    await userRepository.save(requestedUser!);
+
     io.to(reqUserSocketId!).emit(
       "getAcceptedAlarm",
       "대화 요청이 승인되었습니다!"
@@ -186,19 +180,6 @@ io.on("connection", (socket: Socket) => {
     const chatRoom = new ChatRoom();
 
     roomId = chatRoom.id;
-
-    // roomId = payload.roomId;
-    // console.log("roomId는 이것입니다!", roomId, "type:", typeof roomId);
-
-    // chattingUsers[roomId].push(socket.id);
-
-    // if (chattingUsers[roomId]) {
-    //   // 기존 참가자 있음
-    //   chattingUsers[roomId].push(socket.id);
-    // } else {
-    //   // 첫 참가자
-    //   chattingUsers[roomId] = [socket.id];
-    // }
 
     roomIdStr = roomId.toString();
     socket.join(roomIdStr);
@@ -213,8 +194,8 @@ io.on("connection", (socket: Socket) => {
       socket.rooms
     );
 
-    // 요청받은 유저 혹은 요청한 유저가 갑자기 브라우저 종료 시 on_chat을 0으로 바꿔주기
-    let leavingNickname;
+    // 채팅 대기 유저 리스트에서 요청받은 유저 혹은 요청한 유저가 갑자기 브라우저 종료 시 on_chat과 로그인 상태를 0으로 바꿔주기
+    let leavingNickname: string;
     for (let i = 0; i < chatUserList.length; i++) {
       if (chatUserList[i].socketId === socket.id) {
         leavingNickname = chatUserList[i].userNickname;
@@ -223,7 +204,18 @@ io.on("connection", (socket: Socket) => {
       }
     }
 
-    if (leavingNickname) {
+    // 채팅 중 유저가 갑자기 브라우저를 종료할 경우 DB상 정보에서 삭제 후 상대 유저 역시 방에서 exit 되도록 하기
+    let leavingRoomId: string;
+    for(let i = 0 ; i < chatRoomList.length; i++) {
+      if(chatRoomList[i].socketId === socket.id) {
+        leavingNickname = chatRoomList[i].userNickname;
+        leavingRoomId = chatRoomList[i].roomId
+        chatRoomList.splice(i, 1);
+      }
+    }
+
+
+    if (leavingNickname!) {
       const leavingUser = await userRepository.findOne({
         where: {
           nickname: leavingNickname,
@@ -233,8 +225,33 @@ io.on("connection", (socket: Socket) => {
       leavingUser!.on_chat = 0;
       leavingUser!.loginStatus = 0;
 
+      // remove와 다르게 해당하는 엔터티가 없어도 에러를 발생시키지 않음
+      // cf) 실무에서는 실제 테이블을 삭제하는 물리 삭제인 delete를 잘 사용하지 않음, 논리 삭제인 softDelete혹은 update쿼리로 빈값을 지정하는 방식 사용
+      // await userRepository.delete({ chatRoom: leavingUser!.chatRoom }); // 이건 해당하는 유저 자체를 삭제하는 코드
+      
+      // 떠나는 유저의 채팅방을 DB상에서 삭제
+
+      if(leavingRoomId!) {
+
+        await chatRoomRepository.delete({ id: leavingUser!.chatRoom.id });
+      
+        io.to(leavingRoomId).emit(
+          "checkRequest", () => {
+
+          }
+        );
+      }
+     
+
+
       await userRepository.save(leavingUser!);
+
     }
+
+    
+
+
+
   });
 
   socket.on("disconnect", (reason) => {

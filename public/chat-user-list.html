@@ -58,8 +58,7 @@
         // 유저 새로고침 시 시간 기록
         updateRefreshedTime();
 
-        // loginStatus = 1
-        // socket.emit("setUserSignedIn", { userNickname })
+        // 해당 페이지로 들어온 모든 유저에게 loginStatus = 1 해주기
         setUserSignedIn();
 
         // 접속해있는 채팅 유저 리스트 가져오기
@@ -76,6 +75,9 @@
         // 토큰이 만료될 때 까지 아무 활동도 하지않는 유저를 리스트에서 지우기
         const setTimeOutId = setTimeout(() => {
         clearTimeout(setTimeOutId);
+        
+        // 여기에 유저의 loginStatus를 0으로 바꿔주는 코드를 짠다면 어떨까?
+        
         location.reload();
         }, TOKEN_EXPIRATION_CHECKING_TIME);
       });
@@ -142,14 +144,12 @@
 
       const acceptChatReq = (reqUserNickname, reqUserSocketId, requestedNickname) => {
         
-        
         modalBtnClicked = true;
         socket.emit("acceptChatRep", reqUserNickname, reqUserSocketId, requestedNickname)
-        alert("요청 승인 잘 작동합니다!")
+        // alert("요청 승인 잘 작동합니다!")
         $("#chatReqModal").hide();
         // socket.on("getAcceptedAlarm", () => {
         //   // 이곳에 요청 보낸 이에게 socket으로 채팅방에 입장하게 하는 코드 구성
-
         // })
         return window.location.replace("/chat.html");
       }
@@ -317,6 +317,10 @@
 
           console.log("토큰이 만료되어 needSignOut이 작동한다");
           // 토큰 만료로 인한 로그아웃 처리 시에도 loginStatus를 0으로 만들어주어야 유저리스트에 남지 않음
+          
+          // 하지만 이렇게 구현하면 토큰 검증에서 또 다시 막히게 되어 loginStatus가 변경되지 않는다.
+          // 그렇다고 토큰 검증 미들웨어에서 loginStatus를 처리하기엔 이미 만료된 토큰이라 유저 정보를 불러올 수 없다.
+          // + 이렇게 해서 리스트에 나타나는 토큰 만료 유저에게 대화 요청을 보내게 되면 둘 다 on_chat이 1이 되는 오류가 발생한다.
           await axios.get("/api/auth/logout", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

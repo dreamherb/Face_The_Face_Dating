@@ -36,12 +36,14 @@ export class User {
   page_refreshed_time: Date;
 
   @OneToOne(() => Profile, {
-    cascade: true
+    cascade: true,
   })
   @JoinColumn()
   profile: Profile;
 
   // ChatRoom hasMany User, User belongsTo ChatRoom / ChatRoom 하나당 유저가 2명이기 때문
-  @ManyToOne(() => ChatRoom, (chatRoom) => chatRoom.users)
+  @ManyToOne(() => ChatRoom, (chatRoom) => chatRoom.users, {
+    cascade: true,
+  })
   chatRoom: ChatRoom;
 }
