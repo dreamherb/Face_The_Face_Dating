@@ -148,11 +148,16 @@
         socket.emit("acceptChatRep", reqUserNickname, reqUserSocketId, requestedNickname)
         // alert("요청 승인 잘 작동합니다!")
         $("#chatReqModal").hide();
-        // socket.on("getAcceptedAlarm", () => {
-        //   // 이곳에 요청 보낸 이에게 socket으로 채팅방에 입장하게 하는 코드 구성
-        // })
+        
         return window.location.replace("/chat.html");
       }
+
+      socket.on("getAcceptedAlarm", (msg) => {
+          // 이곳에 요청 보낸 이에게 socket으로 채팅방에 입장하게 하는 코드 구성
+          alert(msg);
+          window.location.replace("/chat.html");
+        })
+
       const denyChatReq = (reqUserNickname, reqUserSocketId, requestedNickname) => {
 
         modalBtnClicked = true;

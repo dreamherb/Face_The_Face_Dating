@@ -4,6 +4,7 @@ import { ChatRoom } from "./models/entity/ChatRoom";
 import { AppDataSource } from "./models/data-source";
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
+import { AlreadyHasActiveConnectionError } from "typeorm";
 const server = createServer(app);
 const userRepository = AppDataSource.getRepository(User);
 const chatRoomRepository = AppDataSource.getRepository(ChatRoom);
@@ -12,7 +13,7 @@ let roomIdStr: string;
 
 // 채팅방 리스트에 있는 유저
 type ChatUserList = { userNickname: string; socketId: string };
-type ChatRoomList = { roomId: string ; userNickname: string; socketId: string };
+type ChatRoomList = { roomId: string; userNickname: string; socketId: string };
 
 const chatUserList: ChatUserList[] = [];
 const chatRoomList: ChatRoomList[] = [];
@@ -206,14 +207,14 @@ io.on("connection", (socket: Socket) => {
 
     // 채팅 중 유저가 갑자기 브라우저를 종료할 경우 DB상 정보에서 삭제 후 상대 유저 역시 방에서 exit 되도록 하기
     let leavingRoomId: string;
-    for(let i = 0 ; i < chatRoomList.length; i++) {
-      if(chatRoomList[i].socketId === socket.id) {
+    for (let i = 0; i < chatRoomList.length; i++) {
+      if (chatRoomList[i].socketId === socket.id) {
         leavingNickname = chatRoomList[i].userNickname;
-        leavingRoomId = chatRoomList[i].roomId
+        leavingRoomId = chatRoomList[i].roomId;
         chatRoomList.splice(i, 1);
+        break;
       }
     }
-
 
     if (leavingNickname!) {
       const leavingUser = await userRepository.findOne({
@@ -228,30 +229,24 @@ io.on("connection", (socket: Socket) => {
       // remove와 다르게 해당하는 엔터티가 없어도 에러를 발생시키지 않음
       // cf) 실무에서는 실제 테이블을 삭제하는 물리 삭제인 delete를 잘 사용하지 않음, 논리 삭제인 softDelete혹은 update쿼리로 빈값을 지정하는 방식 사용
       // await userRepository.delete({ chatRoom: leavingUser!.chatRoom }); // 이건 해당하는 유저 자체를 삭제하는 코드
-      
+
       // 떠나는 유저의 채팅방을 DB상에서 삭제
 
-      if(leavingRoomId!) {
-
+      if (leavingRoomId!) {
         await chatRoomRepository.delete({ id: leavingUser!.chatRoom.id });
-      
-        io.to(leavingRoomId).emit(
-          "checkRequest", () => {
 
+        io.to(leavingRoomId).emit("isUserLeft", () => {
+          for (let i = 0; i < chatRoomList.length; i++) {
+            if (chatRoomList[i].roomId === leavingRoomId) {
+              chatRoomList.splice(i, 1);
+              break;
+            }
           }
-        );
+        });
       }
-     
-
 
       await userRepository.save(leavingUser!);
-
     }
-
-    
-
-
-
   });
 
   socket.on("disconnect", (reason) => {
